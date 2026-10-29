@@ -448,6 +448,10 @@ const gs=(fn,...a)=>{
   return req.then(r=>r.json()).then(j=>{clearTimeout(tm);if(!j.ok)throw new Error(j.error||'API error');return j.data})
     .catch(e=>{clearTimeout(tm);throw e.name==='AbortError'?new Error('หมดเวลา: เซิร์ฟเวอร์ไม่ตอบ'):e});
 };
+function logEvent(type,detail){
+  if(!/^https:\/\/script\.google\.com\//.test(API_URL))return;
+  try{fetch(API_URL,{method:'POST',body:JSON.stringify({fn:'api_logEvent',args:[type,detail||'']})}).catch(()=>{})}catch(e){}
+}
 window.addEventListener('error',e=>{const m=document.getElementById('list');if(m)m.innerHTML='<div class="empty" style="color:#dc2626">เกิดข้อผิดพลาดในหน้าเว็บ: '+String(e.message).replace(/</g,'&lt;')+'</div>'});
 const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const addDays=(s,n)=>{const d=new Date(s+'T00:00:00');d.setDate(d.getDate()+n);return iso(d)};
@@ -699,7 +703,9 @@ $('#sheet').onclick=e=>{if(e.target.id==='sheet')$('#sheet').classList.remove('s
 async function setRange(f,t){S.prevMap=null;S.from=f;S.to=t;S.hash='';renderQuick();const c=fromCache(f,t);if(c){S.trips=c;render()}setLive('busy');try{await loadRange();if(!S.trips.length)render()}catch(e){setLive('off')}}
 $('#dFrom').onchange=()=>{const f=$('#dFrom').value,t=$('#dTo').value;if(f)setRange(f,t&&t>=f?t:f)};
 $('#dTo').onchange=()=>{const t=$('#dTo').value,f=$('#dFrom').value;if(t)setRange(f&&f<=t?f:t,t)};
-let qt;$('#q').oninput=e=>{clearTimeout(qt);qt=setTimeout(()=>doSearch(e.target.value),300)};
+$('#qBtn').onclick=()=>{const b=$('#sbox'),o=b.style.display==='none';b.style.display=o?'':'none';if(o)$('#q').focus();else if(S.q){clearSearch();doSearch('')}};
+let qt,qtl;$('#q').oninput=e=>{const v=e.target.value;clearTimeout(qt);qt=setTimeout(()=>doSearch(v),300);
+  clearTimeout(qtl);qtl=setTimeout(()=>{if(v.trim().length>=2)logEvent('search',v.trim())},1500)};
 $('#qClr').onclick=()=>{$('#q').value='';doSearch('')};
 function clearSearch(){S.q='';S.saved=null;$('#q').value='';$('#qClr').style.display='none';$('#sbox').style.display='none'}
 async function doSearch(v){
@@ -774,6 +780,7 @@ function applyInit(m){S.today=m.today;S.dates=m.dates||[];(m.drivers||[]).forEac
     $('#cDate').value=S.today;renderQuick();S.hash='';await loadRange(m.data);
     if(!S.trips.length)render();
     gs('api_getDays',addDays(S.today,1),addDays(S.today,1)).then(r=>{r.days.forEach(d=>S.dc[d.date]=d.trips);saveLocal()}).catch(()=>{});
+    try{if(localStorage.getItem('busOpenDay')!==S.today){localStorage.setItem('busOpenDay',S.today);logEvent('open','')}}catch(e){logEvent('open','')}
   }catch(e){setLive('off');if(!S.trips.length)$('#list').innerHTML='<div class="empty">โหลดข้อมูลไม่สำเร็จ: '+esc(e.message||e)+'</div>'}
 })();
 </script>
