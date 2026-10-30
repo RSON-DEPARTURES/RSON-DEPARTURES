@@ -342,6 +342,82 @@ body.dark .hm{background:rgba(15,23,42,.75);color:#e5e7eb}
 .cd.sk i{display:block;height:16px;border-radius:8px;background:linear-gradient(90deg,var(--pan2),var(--line),var(--pan2));background-size:200% 100%;animation:shm 1.2s infinite}
 .cd.sk i:nth-child(1){width:40%;height:22px}.cd.sk i:nth-child(2){width:80%}.cd.sk i:nth-child(3){width:65%}.cd.sk i:nth-child(4){width:50%}
 @keyframes shm{to{background-position:-200% 0}}
+
+.exec-mobile{display:none}
+@media(max-width:860px){.exec-desktop{display:none}.exec-mobile{display:inline-flex}}
+.moremenu{position:absolute;top:56px;right:10px;background:var(--pan);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:60;overflow:hidden}
+.moremenu button{display:block;width:100%;text-align:left;padding:12px 16px;border:0;background:none;color:var(--txt);font-size:15px;cursor:pointer}
+.moremenu button:hover{background:var(--pan2)}
+.ovl{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:70;display:flex;align-items:flex-end;justify-content:center}
+.ovlbox{background:var(--bg);width:100%;max-width:900px;max-height:92vh;border-radius:18px 18px 0 0;overflow:auto;padding:14px}
+@media(min-width:860px){.ovl{align-items:center}.ovlbox{border-radius:18px;max-height:88vh}}
+.ovlh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;position:sticky;top:0;background:var(--bg);padding:4px 0}
+.stat-sec{margin-top:14px}.stat-sec h4{margin:0 0 8px;font-size:15px}
+.bar-row{display:grid;grid-template-columns:110px 1fr 46px;gap:8px;align-items:center;font-size:13.5px;margin-bottom:6px}
+.bar-row .lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{background:var(--pan2);border-radius:6px;height:14px;overflow:hidden}
+.bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--time),var(--amb))}
+.bar-row .val{text-align:right;font-variant-numeric:tabular-nums;color:var(--mut)}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.kpi2{display:flex;gap:10px}
+.kpi2 .box{flex:1;background:var(--pan);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.kpi2 .box b{display:block;font-size:24px;color:var(--time)}.kpi2 .box span{font-size:12px;color:var(--mut)}
+
+@media(max-width:860px){
+ .hrow{flex-wrap:nowrap;gap:6px}
+ .brand .b1{display:none}
+ .brand .b2{font-size:16px}
+ #logo{width:30px;height:30px}
+ .clk{font-size:16px;padding:3px 6px}.clk small{display:none}
+ .ib{width:34px;height:34px;font-size:16px;padding:0}
+}
+
+/* ===== ปุ่มไอคอน 3D ===== */
+.hrow{gap:8px}
+.hrow .clk,.ib3d{height:44px;border-radius:14px;border:1px solid rgba(19,35,143,.10);
+ background:linear-gradient(180deg,#ffffff 0%,#eef2ff 100%);
+ box-shadow:0 6px 14px -6px rgba(19,35,143,.35),0 2px 4px rgba(19,35,143,.08),inset 0 1px 0 #fff,inset 0 -2px 0 rgba(19,35,143,.06)}
+.hrow .clk{display:inline-flex;align-items:center;padding:0 14px;font-size:22px}
+.ib3d{width:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;padding:0;flex:none;
+ transition:transform .15s ease,box-shadow .15s ease}
+.ib3d svg{filter:drop-shadow(0 2px 2px rgba(0,0,0,.18))}
+.ib3d:hover{transform:translateY(-2px);box-shadow:0 10px 18px -6px rgba(19,35,143,.45),0 2px 4px rgba(19,35,143,.1),inset 0 1px 0 #fff}
+.ib3d:active{transform:translateY(1px);box-shadow:0 2px 6px -2px rgba(19,35,143,.35),inset 0 2px 4px rgba(19,35,143,.12)}
+.ib3d.wide{width:auto;padding:0 14px 0 10px;font-weight:600;font-size:14.5px;color:var(--time);font-family:inherit}
+body.dark .hrow .clk,body.dark .ib3d{background:linear-gradient(180deg,#1e293b 0%,#0f172a 100%);border-color:rgba(148,163,184,.18);
+ box-shadow:0 6px 14px -6px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.08)}
+@media(max-width:860px){
+ .hrow{gap:6px}
+ .hrow .clk,.ib3d{height:38px;border-radius:12px}
+ .ib3d{width:38px}.ib3d svg{width:21px;height:21px}
+ .hrow .clk{font-size:17px;padding:0 9px}
+}
+
+.ib3d.exec-mobile{display:none}
+@media(max-width:860px){.ib3d.exec-desktop{display:none}.ib3d.exec-mobile{display:inline-flex}}
+.brand{min-width:0;overflow:hidden}
+
+/* ===== เมนูล่าง: แคปซูลกระจกใส 3D ===== */
+nav.capsule{position:fixed;left:50%;right:auto;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom));
+ width:min(560px,calc(100% - 20px));display:flex;justify-content:space-between;align-items:center;gap:4px;margin:0;
+ background:rgba(255,255,255,.72);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+ border:1px solid rgba(255,255,255,.95);border-radius:999px;padding:7px;
+ box-shadow:0 18px 36px -16px rgba(19,35,143,.45),inset 0 1px 0 #fff;z-index:40}
+body.dark nav.capsule{background:rgba(51,65,85,.55);border-color:rgba(148,163,184,.25);box-shadow:0 18px 36px -16px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.08)}
+nav.capsule button{flex:0 0 auto;max-width:none;display:flex;align-items:center;justify-content:center;gap:8px;height:52px;min-width:52px;padding:0 6px;
+ border:0;border-radius:999px;background:none;color:#fff;font:600 15px Kanit,system-ui,sans-serif;cursor:pointer;transition:all .25s ease}
+nav.capsule button .ic{width:34px;height:34px;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 3px 3px rgba(0,0,0,.25))}
+nav.capsule button .nl{display:none;white-space:nowrap}
+nav.capsule button:not(.on):hover{background:rgba(19,35,143,.07)}
+nav.capsule button,nav.capsule button.on{flex-direction:row}
+nav.capsule button.on{flex:0 0 auto;padding:0 18px 0 10px;transform:none}
+nav.capsule button.on .nl{display:inline}
+nav.capsule button.on.k1{background:linear-gradient(135deg,#4f6bff,#13238f);box-shadow:0 8px 18px -6px rgba(79,107,255,.8),inset 0 1px 0 rgba(255,255,255,.35)}
+nav.capsule button.on.k2{background:linear-gradient(135deg,#38bdf8,#0369a1);box-shadow:0 8px 18px -6px rgba(14,165,233,.8),inset 0 1px 0 rgba(255,255,255,.4)}
+nav.capsule button.on.k3{background:linear-gradient(135deg,#fb923c,#c2410c);box-shadow:0 8px 18px -6px rgba(234,88,12,.8),inset 0 1px 0 rgba(255,255,255,.35)}
+nav.capsule button.on.k4{background:linear-gradient(135deg,#fbbf24,#d97706);box-shadow:0 8px 18px -6px rgba(245,158,11,.8),inset 0 1px 0 rgba(255,255,255,.4)}
+nav.capsule button.on.k4 .ic svg path{fill:#fff;stroke:#fff}
+main{padding-bottom:110px}
 </style>
 </head>
 <body>
@@ -350,14 +426,17 @@ body.dark .hm{background:rgba(15,23,42,.75);color:#e5e7eb}
     <div class="brand"><img id="logo" src="data:image/png;base64,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" alt="โลโก้โรงเรียนพยาบาลรามาธิบดี">
       <div><div class="b1">RSON-DEPARTURES</div><div class="b2">ตารางเดินรถ</div></div></div>
     <div class="clk" id="clock">--:--<small id="clockD"></small></div>
-    <button class="ib" id="qBtn" aria-label="ค้นหา">🔍</button>
+    <button class="ib3d" id="mode" aria-label="สลับโหมดสว่าง/มืด"></button>
+    <button class="ib3d" id="qBtn" aria-label="ค้นหา"><svg viewBox="0 0 32 32" width="24" height="24"><defs><radialGradient id="gL" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#e0f2fe"/><stop offset=".6" stop-color="#7dd3fc"/><stop offset="1" stop-color="#0284c7"/></radialGradient><linearGradient id="gR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#13238f"/></linearGradient><linearGradient id="gH" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fb923c"/><stop offset="1" stop-color="#c2410c"/></linearGradient></defs><path d="M19.5 19.5l7.5 7.5" stroke="url(#gH)" stroke-width="5" stroke-linecap="round"/><circle cx="13" cy="13" r="10" fill="url(#gR)"/><circle cx="13" cy="13" r="7" fill="url(#gL)"/><ellipse cx="10.5" cy="10" rx="2.6" ry="1.6" fill="#fff" opacity=".85" transform="rotate(-35 10.5 10)"/></svg></button>
+    <button class="ib3d wide exec-desktop" id="execBtn"><svg viewBox="0 0 32 32" width="24" height="24"><defs><linearGradient id="d1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#818cf8"/><stop offset="1" stop-color="#13238f"/></linearGradient><linearGradient id="d2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdba74"/><stop offset="1" stop-color="#e8560d"/></linearGradient><linearGradient id="d3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fde68a"/><stop offset="1" stop-color="#f59e0b"/></linearGradient></defs><rect x="3" y="27" width="26" height="3" rx="1.5" fill="#cbd5e1"/><rect x="4" y="15" width="6.5" height="11" rx="2" fill="url(#d1)"/><rect x="12.75" y="6" width="6.5" height="20" rx="2" fill="url(#d2)"/><rect x="21.5" y="11" width="6.5" height="15" rx="2" fill="url(#d3)"/><rect x="5" y="16" width="2" height="8" rx="1" fill="#fff" opacity=".45"/><rect x="13.75" y="7" width="2" height="17" rx="1" fill="#fff" opacity=".45"/><rect x="22.5" y="12" width="2" height="12" rx="1" fill="#fff" opacity=".45"/></svg><span>สำหรับผู้บริหาร</span></button>
+    <button class="ib3d exec-mobile" id="execBtnM" aria-label="สำหรับผู้บริหาร"><svg viewBox="0 0 32 32" width="24" height="24"><defs><linearGradient id="e1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#818cf8"/><stop offset="1" stop-color="#13238f"/></linearGradient><linearGradient id="e2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdba74"/><stop offset="1" stop-color="#e8560d"/></linearGradient><linearGradient id="e3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fde68a"/><stop offset="1" stop-color="#f59e0b"/></linearGradient></defs><rect x="3" y="27" width="26" height="3" rx="1.5" fill="#cbd5e1"/><rect x="4" y="15" width="6.5" height="11" rx="2" fill="url(#e1)"/><rect x="12.75" y="6" width="6.5" height="20" rx="2" fill="url(#e2)"/><rect x="21.5" y="11" width="6.5" height="15" rx="2" fill="url(#e3)"/><rect x="5" y="16" width="2" height="8" rx="1" fill="#fff" opacity=".45"/><rect x="13.75" y="7" width="2" height="17" rx="1" fill="#fff" opacity=".45"/><rect x="22.5" y="12" width="2" height="12" rx="1" fill="#fff" opacity=".45"/></svg></button>
     <span style="display:none"><span id="dot"></span><span id="live"></span></span>
   </div>
-  <nav>
-    <button data-tab="trips" class="on"><i>🗓️</i><span>ตาราง</span></button>
-    <button data-tab="veh"><i>🚐</i><span>ดูรถรายคัน</span></button>
-    <button data-tab="cmp"><i>📣</i><span>ร้องเรียน</span></button>
-    <button data-tab="ctc"><i>☎️</i><span>ติดต่อ</span></button>
+  <nav class="capsule">
+    <button data-tab="trips" class="on k1"><span class="ic"><svg viewBox="0 0 32 32" width="30" height="30"><defs><linearGradient id="nv1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fb7185"/><stop offset="1" stop-color="#e11d48"/></linearGradient></defs><rect x="4" y="6" width="24" height="22" rx="5" fill="#f8fafc"/><path d="M4 11a5 5 0 0 1 5-5h14a5 5 0 0 1 5 5v2H4z" fill="url(#nv1)"/><rect x="9" y="3" width="3" height="6" rx="1.5" fill="#94a3b8"/><rect x="20" y="3" width="3" height="6" rx="1.5" fill="#94a3b8"/><g fill="#4f46e5"><circle cx="10" cy="18" r="1.8"/><circle cx="16" cy="18" r="1.8"/><circle cx="10" cy="23.5" r="1.8"/><circle cx="16" cy="23.5" r="1.8"/></g><circle cx="22" cy="18" r="2.3" fill="#f97316"/></svg></span><span class="nl">ตาราง</span></button>
+    <button data-tab="veh" class="k2"><span class="ic"><svg viewBox="0 0 32 32" width="32" height="32"><defs><linearGradient id="nv2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7dd3fc"/><stop offset="1" stop-color="#0284c7"/></linearGradient></defs><path d="M3 21V12a4 4 0 0 1 4-4h13l6 6a4 4 0 0 1 3 3.5V21a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="url(#nv2)"/><path d="M6.5 11h5v5h-6v-4a1 1 0 0 1 1-1zM13.5 11h5.5v5h-5.5zM21 11l4 5h-4z" fill="#e0f2fe"/><rect x="3" y="18" width="26" height="1.8" fill="#fbbf24"/><circle cx="9" cy="23.5" r="3.2" fill="#020617"/><circle cx="9" cy="23.5" r="1.3" fill="#cbd5e1"/><circle cx="23" cy="23.5" r="3.2" fill="#020617"/><circle cx="23" cy="23.5" r="1.3" fill="#cbd5e1"/></svg></span><span class="nl">ดูรถรายคัน</span></button>
+    <button data-tab="cmp" class="k3"><span class="ic"><svg viewBox="0 0 32 32" width="30" height="30"><defs><linearGradient id="nv3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fdba74"/><stop offset="1" stop-color="#ea580c"/></linearGradient></defs><path d="M5 12.5h5l11-6.5v20l-11-6.5H5a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2z" fill="url(#nv3)"/><path d="M9 19.5l1.8 6.2a2 2 0 0 0 1.9 1.3h1.6L12 19.5z" fill="#e2e8f0"/><path d="M24.5 12a5.5 5.5 0 0 1 0 8" stroke="#a5b4fc" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M27.3 9a9.5 9.5 0 0 1 0 14" stroke="#818cf8" stroke-width="2" fill="none" stroke-linecap="round" opacity=".8"/></svg></span><span class="nl">ร้องเรียน</span></button>
+    <button data-tab="ctc" class="k4"><span class="ic"><svg viewBox="0 0 32 32" width="30" height="30"><defs><linearGradient id="nv4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fde68a"/><stop offset="1" stop-color="#f59e0b"/></linearGradient></defs><path d="M10.5 5.5c1-.8 2.4-.5 3 .6l1.8 3.2c.5 1 .2 2.2-.6 2.8l-1.4 1c1 2.6 3 4.7 5.6 5.8l1.1-1.4c.7-.9 1.9-1.1 2.9-.5l3.2 1.9c1.1.7 1.4 2.1.6 3.1l-1.1 1.5c-1.2 1.5-3.2 2-5 1.3C15.1 22.7 10.6 18.2 8.6 12.4c-.6-1.8-.1-3.8 1.4-5z" fill="url(#nv4)"/><path d="M19 6.5a7 7 0 0 1 6.5 6.5M19 10.5a3 3 0 0 1 2.5 2.5" stroke="#fbbf24" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span><span class="nl">ติดต่อ</span></button>
   </nav>
 </header>
 
@@ -417,8 +496,20 @@ body.dark .hm{background:rgba(15,23,42,.75);color:#e5e7eb}
     <a class="btn" href="tel:022010628" style="display:inline-block;margin-top:16px;font-size:22px;padding:12px 26px;text-decoration:none">📞 0-2201-0628</a>
     <div style="font-size:13px;color:var(--mut);margin-top:8px">แตะเพื่อโทรออก</div>
   </div>
-  <div class="card" style="display:flex;justify-content:space-between;align-items:center"><span>โหมดแสดงผล</span><button class="btn sec" id="mode">🌙 โหมดมืด</button></div>
 </section>
+<div class="ovl" id="execOvl" style="display:none">
+  <div class="ovlbox">
+    <div class="ovlh"><b>📊 สำหรับผู้บริหาร</b><button class="ib" id="execClose" aria-label="ปิด">✕</button></div>
+    <div id="execBody">
+      <div class="card">
+        <div style="font-size:14px;color:var(--mut);margin-bottom:8px">กรอกรหัสผ่านเพื่อดูสถิติการใช้งาน</div>
+        <div class="row"><input type="password" id="execPin" placeholder="รหัสผ่าน" style="flex:1" autocomplete="off"><button class="btn" id="execGo">เข้าดู</button></div>
+        <div id="execMsg" style="font-size:13px;color:var(--red);margin-top:6px"></div>
+      </div>
+      <div id="execStats"></div>
+    </div>
+  </div>
+</div>
   <footer class="credit" id="credit">© หน่วยกายภาพ โรงเรียนพยาบาลรามาธิบดี<br><small>คณะแพทยศาสตร์โรงพยาบาลรามาธิบดี มหาวิทยาลัยมหิดล</small></footer>
 </main>
 
@@ -442,7 +533,7 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;'
 const gs=(fn,...a)=>{
   if(!/^https:\/\/script\.google\.com\//.test(API_URL))return Promise.reject(new Error('ยังไม่ได้ตั้งค่า API_URL ใน index.html'));
   const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),25000);
-  const req=fn==='api_submitComplaint'
+  const req=(fn==='api_submitComplaint'||fn==='api_getStats')
     ?fetch(API_URL,{method:'POST',body:JSON.stringify({fn,args:a}),signal:ctl.signal})
     :fetch(API_URL+'?fn='+fn+'&args='+encodeURIComponent(JSON.stringify(a)),{signal:ctl.signal});
   return req.then(r=>r.json()).then(j=>{clearTimeout(tm);if(!j.ok)throw new Error(j.error||'API error');return j.data})
@@ -757,9 +848,44 @@ const cmpCard=i=>`<div class="card" style="margin:8px 0 0"><div class="vh"><b>${
 /* ================= home ================= */
 $('.brand').onclick=()=>{goTab('trips');if(S.q||S.from!==S.today||S.to!==S.today){clearSearch();setRange(S.today,S.today)}scrollTo(0,0)};
 /* ================= mode ================= */
-function applyMode(d){document.body.classList.toggle('dark',d);$('#mode').textContent=d?'☀️ โหมดสว่าง':'🌙 โหมดมืด'}
+const ICON_MOON=`<svg viewBox="0 0 32 32" width="24" height="24"><defs><radialGradient id="mG" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#fef9c3"/><stop offset=".55" stop-color="#facc15"/><stop offset="1" stop-color="#ca8a04"/></radialGradient></defs><path d="M20 3.5A12.5 12.5 0 1 0 28.5 22 10 10 0 0 1 20 3.5z" fill="url(#mG)"/><circle cx="25" cy="7" r="1.4" fill="#facc15"/><circle cx="28.5" cy="12.5" r=".9" fill="#fde047"/><ellipse cx="11" cy="11" rx="3" ry="1.8" fill="#fff" opacity=".6" transform="rotate(-40 11 11)"/></svg>`,ICON_SUN=`<svg viewBox="0 0 32 32" width="24" height="24"><defs><radialGradient id="sG" cx=".38" cy=".33" r=".85"><stop offset="0" stop-color="#fff7ed"/><stop offset=".5" stop-color="#fb923c"/><stop offset="1" stop-color="#c2410c"/></radialGradient></defs><g stroke="#f59e0b" stroke-width="2.6" stroke-linecap="round"><path d="M16 2v4M16 26v4M2 16h4M26 16h4M6.1 6.1l2.8 2.8M23.1 23.1l2.8 2.8M6.1 25.9l2.8-2.8M23.1 8.9l2.8-2.8"/></g><circle cx="16" cy="16" r="7.5" fill="url(#sG)"/><ellipse cx="13.5" cy="13" rx="2.4" ry="1.4" fill="#fff" opacity=".7" transform="rotate(-35 13.5 13)"/></svg>`;
+function applyMode(d){document.body.classList.toggle('dark',d);$('#mode').innerHTML=d?ICON_SUN:ICON_MOON;$('#mode').title=d?'สลับเป็นโหมดสว่าง':'สลับเป็นโหมดมืด'}
 try{applyMode(localStorage.getItem('busMode')==='dark')}catch(e){applyMode(false)}
 $('#mode').onclick=()=>{const d=!document.body.classList.contains('dark');applyMode(d);try{localStorage.setItem('busMode',d?'dark':'light')}catch(e){}};
+/* ================= ผู้บริหาร ================= */
+function openExec(){$('#execOvl').style.display='flex';$('#execPin').focus()}
+$('#execBtn').onclick=openExec;$('#execBtnM').onclick=openExec;
+$('#execClose').onclick=()=>$('#execOvl').style.display='none';
+$('#execOvl').onclick=e=>{if(e.target.id==='execOvl')$('#execOvl').style.display='none'};
+function bar(rows,max){return rows.map(r=>{const p=max?Math.round(r[1]/max*100):0;
+  return `<div class="bar-row"><span class="lbl" title="${esc(r[0])}">${esc(r[0])}</span><div class="bar-track"><div class="bar-fill" style="width:${p}%"></div></div><span class="val">${r[1]}</span></div>`}).join('')}
+function renderStats(s){
+  const maxO=Math.max(1,...s.opens.map(r=>r[1])), maxT=Math.max(1,...s.terms.map(r=>r[1])),
+    maxC=Math.max(1,...s.complaintCat.map(r=>r[1])), maxP=Math.max(1,...s.plates.map(r=>r[1])), totalV=s.hired+s.cantha;
+  $('#execStats').innerHTML=`
+   <div class="kpi2" style="margin:12px 0">
+    <div class="box"><b>${s.opens.reduce((a,r)=>a+r[1],0)}</b><span>เปิดแอป (${s.days} วัน)</span></div>
+    <div class="box"><b>${s.complaintStatus.reduce((a,r)=>a+r[1],0)}</b><span>เรื่องร้องเรียนทั้งหมด</span></div>
+    <div class="box"><b>${totalV}</b><span>เที่ยวรถทั้งหมด</span></div>
+   </div>
+   <div class="stat-grid">
+    <div class="card stat-sec"><h4>📱 เปิดแอปต่อวัน</h4>${s.opens.length?bar(s.opens,maxO):'<div class="empty">ยังไม่มีข้อมูล</div>'}</div>
+    <div class="card stat-sec"><h4>🔎 คำค้นยอดนิยม</h4>${s.terms.length?bar(s.terms,maxT):'<div class="empty">ยังไม่มีข้อมูล</div>'}</div>
+    <div class="card stat-sec"><h4>📣 ร้องเรียนตามสถานะ</h4>${bar(s.complaintStatus,Math.max(1,...s.complaintStatus.map(r=>r[1])))}</div>
+    <div class="card stat-sec"><h4>📣 ร้องเรียนตามหมวด</h4>${s.complaintCat.length?bar(s.complaintCat,maxC):'<div class="empty">ยังไม่มีข้อมูล</div>'}</div>
+    <div class="card stat-sec"><h4>🚐 รถคณะฯ vs รถจ้าง</h4>${bar([['รถคณะฯ',s.cantha],['รถจ้าง',s.hired]],Math.max(1,s.cantha,s.hired))}</div>
+    <div class="card stat-sec"><h4>🚗 รถที่วิ่งบ่อยสุด</h4>${s.plates.length?bar(s.plates,maxP):'<div class="empty">ยังไม่มีข้อมูล</div>'}</div>
+   </div>
+   <div style="font-size:12px;color:var(--mut);margin-top:10px">ข้อมูลย้อนหลัง ${s.days} วัน · คำนวณล่าสุด ${esc(s.updated)} น.</div>`;
+}
+$('#execGo').onclick=async()=>{
+  const pin=$('#execPin').value.trim();if(!pin)return;
+  $('#execGo').disabled=true;$('#execMsg').textContent='กำลังตรวจสอบ…';$('#execMsg').style.color='var(--mut)';
+  try{const s=await gs('api_getStats',pin);$('#execMsg').textContent='';$('#execPin').value='';renderStats(s)}
+  catch(e){$('#execMsg').textContent=e.message||'เกิดข้อผิดพลาด';$('#execMsg').style.color='var(--red)'}
+  $('#execGo').disabled=false;
+};
+$('#execPin').onkeydown=e=>{if(e.key==='Enter')$('#execGo').click()};
 /* ================= clock ================= */
 const setHH=()=>document.documentElement.style.setProperty('--hh',$('header').offsetHeight+'px');addEventListener('resize',setHH);
 $('#clock').firstChild.nodeValue=nowHM();
