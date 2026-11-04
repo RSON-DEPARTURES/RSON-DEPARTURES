@@ -391,8 +391,8 @@ body.dark .hm{background:rgba(15,23,42,.75);color:#e5e7eb}
 .dg .bar-row{grid-template-columns:minmax(0,1.4fr) 1fr 40px}.dlg{min-width:150px}
 @media(max-width:860px){.dfl{position:static;gap:5px}.dfl .seg button{padding:5px 9px;font-size:13px}.dfl .lab{min-width:0;flex:1;font-size:14px;white-space:nowrap}.dfl .seg{order:-1;width:100%}.dfl .seg button{flex:1}
  .dfl .sp{display:none}.dfl .btn.sec{padding:6px 10px;font-size:13px}.kc b{font-size:22px}.dg{grid-template-columns:1fr}}
-@media print{body>*:not(#execOvl){display:none!important}#execOvl{position:static;background:none}#execOvl .ovlbox{max-height:none;overflow:visible;max-width:none}
- .dfl button,.dfl input,#execMe,#execClose,#cpBox,.noprint{display:none!important}.dg .card{break-inside:avoid}}
+@media print{*{-webkit-print-color-adjust:exact;print-color-adjust:exact}body>*:not(#execOvl){display:none!important}#execOvl{position:static;background:none;display:block!important}#execOvl .ovlbox{max-height:none;overflow:visible;max-width:none}
+ .dfl button,.dfl input,.dfl .seg,#execBody>.card,#execMe,#execClose,#cpBox,.noprint{display:none!important}.dg .card{break-inside:avoid}}
 .kpi2 .box{flex:1;background:var(--pan);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
 .kpi2 .box b{display:block;font-size:24px;color:var(--time)}.kpi2 .box span{font-size:12px;color:var(--mut)}
 
@@ -928,6 +928,7 @@ try{applyMode(localStorage.getItem('busMode')==='dark')}catch(e){applyMode(false
 $('#mode').onclick=()=>{const d=!document.body.classList.contains('dark');applyMode(d);try{localStorage.setItem('busMode',d?'dark':'light')}catch(e){}};
 /* ================= ผู้บริหาร ================= */
 function openExec(){$('#execOvl').style.display='flex';(EXU?$('#execClose'):$('#execUser')).focus()}
+document.body.appendChild($('#execOvl')); // ให้พิมพ์ได้ (ต้องเป็นลูกของ body)
 $('#execBtn').onclick=openExec;$('#execBtnM').onclick=openExec;
 $('#execClose').onclick=()=>$('#execOvl').style.display='none';
 $('#execOvl').onclick=e=>{if(e.target.id==='execOvl')$('#execOvl').style.display='none'};
