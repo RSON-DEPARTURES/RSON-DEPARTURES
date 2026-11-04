@@ -598,7 +598,7 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const gs=(fn,...a)=>{
   if(!/^https:\/\/script\.google\.com\//.test(API_URL))return Promise.reject(new Error('ยังไม่ได้ตั้งค่า API_URL ใน index.html'));
-  const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),25000);
+  const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),fn==='api_analytics'?60000:25000);
   const req=(fn==='api_submitComplaint'||fn==='api_login'||fn==='api_analytics'||fn==='api_changePassword')
     ?fetch(API_URL,{method:'POST',body:JSON.stringify({fn,args:a}),signal:ctl.signal})
     :fetch(API_URL+'?fn='+fn+'&args='+encodeURIComponent(JSON.stringify(a)),{signal:ctl.signal});
@@ -966,7 +966,9 @@ function shift(n){if(DR.mode==='c'){const len=(new Date(DR.to)-new Date(DR.from)
 function rangeLabel(){const f=new Date(DR.from+'T12:00:00');if(DR.mode==='m')return 'เดือน'+TM[f.getMonth()].replace('.','')+' '+(f.getFullYear()+543);
   if(DR.mode==='y')return 'ปีงบประมาณ '+(f.getFullYear()+544);return th(DR.from)+' – '+th(DR.to)}
 async function loadDash(){$('#execStats').classList.add('dbusy');execMsg('กำลังโหลดข้อมูล '+rangeLabel()+' …',1);
-  try{DS=await gs('api_analytics',EXU,EXP,DR.from,DR.to);execMsg('');renderStats(DS)}catch(e){execMsg(e.message||'เกิดข้อผิดพลาด')}
+  try{let s;for(let i=0;i<30;i++){s=await gs('api_analytics',EXU,EXP,DR.from,DR.to);if(!s.pending)break;
+    execMsg(`กำลังเตรียมข้อมูลครั้งแรก ${s.done}/${s.total} วัน … (ครั้งต่อไปจะเร็ว)`,1)}
+    DS=s;execMsg('');renderStats(DS)}catch(e){execMsg(e.message||'เกิดข้อผิดพลาด')}
   $('#execStats').classList.remove('dbusy')}
 function renderStats(s){DS=s;const k=s.kpi,p=s.prev,days=(new Date(s.to)-new Date(s.from))/864e5+1;
   const card=(lbl,v,pv,unit,inv)=>`<div class="kc"><span>${lbl}</span><b>${(+v).toLocaleString()}${unit||''}</b>${delta(v,pv,inv)} <small style="color:var(--mut);font-size:11px">ช่วงก่อน ${(+pv).toLocaleString()}${unit||''}</small></div>`;
@@ -1022,8 +1024,8 @@ const execMsg=(t,ok)=>{$('#execMsg').textContent=t;$('#execMsg').style.color=ok?
 $('#execGo').onclick=async()=>{
   const u=$('#execUser').value.trim(),p=$('#execPin').value;if(!u||!p)return execMsg('กรอกชื่อผู้ใช้และรหัสผ่าน');
   $('#execGo').disabled=true;execMsg('กำลังตรวจสอบ…',1);
-  setRange('m');try{const s=await gs('api_login',u,p,DR.from,DR.to);EXU=u;EXP=p;$('#execPin').value='';execMsg('');
-    $('#execLogin').style.display='none';$('#execMe').style.display='flex';$('#execName').textContent='👤 '+s.name;renderStats(s)}
+  setRange('m');try{const s=await gs('api_login',u,p);EXU=u;EXP=p;$('#execPin').value='';execMsg('');
+    $('#execLogin').style.display='none';$('#execMe').style.display='flex';$('#execName').textContent='👤 '+s.name;loadDash()}
   catch(e){execMsg(e.message||'เกิดข้อผิดพลาด')}
   $('#execGo').disabled=false;
 };
