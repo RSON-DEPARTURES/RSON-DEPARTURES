@@ -529,8 +529,16 @@ body.dark .hrw2{color:#cbd5e1}
     <div class="ovlh"><b>📊 สำหรับผู้บริหาร</b><button class="ib" id="execClose" aria-label="ปิด">✕</button></div>
     <div id="execBody">
       <div class="card">
-        <div style="font-size:14px;color:var(--mut);margin-bottom:8px">กรอกรหัสผ่านเพื่อดูสถิติการใช้งาน</div>
-        <div class="row"><input type="password" id="execPin" placeholder="รหัสผ่าน" style="flex:1" autocomplete="off"><button class="btn" id="execGo">เข้าดู</button></div>
+        <div id="execLogin"><div style="font-size:14px;color:var(--mut);margin-bottom:8px">เข้าสู่ระบบเพื่อดูสถิติการใช้งาน</div>
+        <input type="text" id="execUser" placeholder="ชื่อผู้ใช้" class="w" autocomplete="username" style="margin-bottom:8px">
+        <div class="row"><input type="password" id="execPin" placeholder="รหัสผ่าน" style="flex:1" autocomplete="current-password"><button class="btn" id="execGo">เข้าสู่ระบบ</button></div></div>
+        <div id="execMe" style="display:none;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><span id="execName"></span>
+          <span><button class="btn sec" id="cpOpen">🔑 เปลี่ยนรหัสผ่าน</button> <button class="btn sec" id="execOut">ออกจากระบบ</button></span></div>
+        <div id="cpBox" style="display:none;margin-top:10px;display:none;gap:8px">
+          <input type="password" id="cpOld" placeholder="รหัสผ่านเดิม" class="w" autocomplete="current-password">
+          <input type="password" id="cpNew" placeholder="รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)" class="w" autocomplete="new-password">
+          <input type="password" id="cpNew2" placeholder="ยืนยันรหัสผ่านใหม่" class="w" autocomplete="new-password">
+          <button class="btn" id="cpGo">บันทึกรหัสใหม่</button></div>
         <div id="execMsg" style="font-size:13px;color:var(--red);margin-top:6px"></div>
       </div>
       <div id="execStats"></div>
@@ -560,7 +568,7 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;'
 const gs=(fn,...a)=>{
   if(!/^https:\/\/script\.google\.com\//.test(API_URL))return Promise.reject(new Error('ยังไม่ได้ตั้งค่า API_URL ใน index.html'));
   const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),25000);
-  const req=(fn==='api_submitComplaint'||fn==='api_getStats')
+  const req=(fn==='api_submitComplaint'||fn==='api_login'||fn==='api_changePassword')
     ?fetch(API_URL,{method:'POST',body:JSON.stringify({fn,args:a}),signal:ctl.signal})
     :fetch(API_URL+'?fn='+fn+'&args='+encodeURIComponent(JSON.stringify(a)),{signal:ctl.signal});
   return req.then(r=>r.json()).then(j=>{clearTimeout(tm);if(!j.ok)throw new Error(j.error||'API error');return j.data})
@@ -888,7 +896,7 @@ function applyMode(d){document.body.classList.toggle('dark',d);$('#mode').innerH
 try{applyMode(localStorage.getItem('busMode')==='dark')}catch(e){applyMode(false)}
 $('#mode').onclick=()=>{const d=!document.body.classList.contains('dark');applyMode(d);try{localStorage.setItem('busMode',d?'dark':'light')}catch(e){}};
 /* ================= ผู้บริหาร ================= */
-function openExec(){$('#execOvl').style.display='flex';$('#execPin').focus()}
+function openExec(){$('#execOvl').style.display='flex';(EXU?$('#execClose'):$('#execUser')).focus()}
 $('#execBtn').onclick=openExec;$('#execBtnM').onclick=openExec;
 $('#execClose').onclick=()=>$('#execOvl').style.display='none';
 $('#execOvl').onclick=e=>{if(e.target.id==='execOvl')$('#execOvl').style.display='none'};
@@ -913,12 +921,25 @@ function renderStats(s){
    </div>
    <div style="font-size:12px;color:var(--mut);margin-top:10px">ข้อมูลย้อนหลัง ${s.days} วัน · คำนวณล่าสุด ${esc(s.updated)} น.</div>`;
 }
+let EXU='';
+const execMsg=(t,ok)=>{$('#execMsg').textContent=t;$('#execMsg').style.color=ok?'var(--blu)':'var(--red)'};
 $('#execGo').onclick=async()=>{
-  const pin=$('#execPin').value.trim();if(!pin)return;
-  $('#execGo').disabled=true;$('#execMsg').textContent='กำลังตรวจสอบ…';$('#execMsg').style.color='var(--mut)';
-  try{const s=await gs('api_getStats',pin);$('#execMsg').textContent='';$('#execPin').value='';renderStats(s)}
-  catch(e){$('#execMsg').textContent=e.message||'เกิดข้อผิดพลาด';$('#execMsg').style.color='var(--red)'}
+  const u=$('#execUser').value.trim(),p=$('#execPin').value;if(!u||!p)return execMsg('กรอกชื่อผู้ใช้และรหัสผ่าน');
+  $('#execGo').disabled=true;execMsg('กำลังตรวจสอบ…',1);
+  try{const s=await gs('api_login',u,p);EXU=u;$('#execPin').value='';execMsg('');
+    $('#execLogin').style.display='none';$('#execMe').style.display='flex';$('#execName').textContent='👤 '+s.name;renderStats(s)}
+  catch(e){execMsg(e.message||'เกิดข้อผิดพลาด')}
   $('#execGo').disabled=false;
+};
+$('#execOut').onclick=()=>{EXU='';$('#execStats').innerHTML='';$('#execMe').style.display='none';$('#cpBox').style.display='none';$('#execLogin').style.display='';execMsg('')};
+$('#cpOpen').onclick=()=>{const b=$('#cpBox');b.style.display=b.style.display==='grid'?'none':'grid'};
+$('#cpGo').onclick=async()=>{
+  const o=$('#cpOld').value,n=$('#cpNew').value,n2=$('#cpNew2').value;
+  if(n.length<6)return execMsg('รหัสใหม่ต้องยาวอย่างน้อย 6 ตัว');if(n!==n2)return execMsg('ยืนยันรหัสใหม่ไม่ตรงกัน');
+  $('#cpGo').disabled=true;execMsg('กำลังบันทึก…',1);
+  try{await gs('api_changePassword',EXU,o,n);['#cpOld','#cpNew','#cpNew2'].forEach(x=>$(x).value='');$('#cpBox').style.display='none';execMsg('เปลี่ยนรหัสผ่านเรียบร้อย ✓',1)}
+  catch(e){execMsg(e.message||'เกิดข้อผิดพลาด')}
+  $('#cpGo').disabled=false;
 };
 $('#execPin').onkeydown=e=>{if(e.key==='Enter')$('#execGo').click()};
 /* ================= clock ================= */
