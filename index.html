@@ -9,6 +9,8 @@
 <title>RSON-DEPARTURES · ตารางเดินรถ</title>
 <link rel="icon" href="favicon.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
 
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -390,7 +392,10 @@ body.dark .hm{background:rgba(15,23,42,.75);color:#e5e7eb}
 .dbusy{opacity:.5;pointer-events:none}
 .dg .bar-row{grid-template-columns:minmax(0,1.4fr) 1fr 40px}.dlg{min-width:150px}
 @media(max-width:860px){.dfl{position:static;gap:5px}.dfl .seg button{padding:5px 9px;font-size:13px}.dfl .lab{min-width:0;flex:1;font-size:14px;white-space:nowrap}.dfl .seg{order:-1;width:100%}.dfl .seg button{flex:1}
- .dfl .sp{display:none}.dfl .btn.sec{padding:6px 10px;font-size:13px}.kc b{font-size:22px}.dg{grid-template-columns:1fr}}
+ .dfl .sp{display:none}.dfl{display:grid;grid-template-columns:38px 1fr 38px 40px 40px;gap:6px}
+ .dfl .seg,#dCus{grid-column:1/-1}.dfl .seg{display:flex}#dCus{justify-content:center}
+ .dfl .nv{width:38px;height:38px}.dfl .lab{background:var(--pan);border:1px solid var(--line);border-radius:10px;height:38px;display:flex;align-items:center;justify-content:center;font-size:14.5px;overflow:hidden}
+ .dfl .btn.ex{width:40px;height:38px;padding:0;display:flex;align-items:center;justify-content:center;font-size:17px}.dfl .btn.ex span{display:none}.kc b{font-size:22px}.dg{grid-template-columns:1fr}}
 @media print{*{-webkit-print-color-adjust:exact;print-color-adjust:exact}body>*:not(#execOvl){display:none!important}#execOvl{position:static;background:none;display:block!important}#execOvl .ovlbox{max-height:none;overflow:visible;max-width:none}
  .dfl button,.dfl input,.dfl .seg,#execBody>.card,#execMe,#execClose,#cpBox,.noprint{display:none!important}.dg .card{break-inside:avoid}}
 .kpi2 .box{flex:1;background:var(--pan);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
@@ -956,20 +961,24 @@ function delta(c,p,inv){if(p==null)return '';if(!p&&!c)return '<i class="eq">–
   const d=Math.round((c-p)*100/p),good=inv?d<0:d>0;return d===0?'<i class="eq">– เท่าเดิม</i>':`<i class="${good?'up':'dn'}">${d>0?'▲':'▼'} ${Math.abs(d)}%</i>`}
 let DS=null,DR={mode:'m',from:'',to:''},VSEL='';
 const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-function setRange(mode,ref){const d=ref?new Date(ref+'T12:00:00'):new Date();let f,t;
+function dSetRange(mode,ref){const d=ref?new Date(ref+'T12:00:00'):new Date();let f,t;
   if(mode==='w'){const wd=(d.getDay()+6)%7;f=new Date(d);f.setDate(d.getDate()-wd);t=new Date(f);t.setDate(f.getDate()+6)}
   else if(mode==='m'){f=new Date(d.getFullYear(),d.getMonth(),1);t=new Date(d.getFullYear(),d.getMonth()+1,0)}
   else if(mode==='y'){const y=d.getMonth()>=9?d.getFullYear():d.getFullYear()-1;f=new Date(y,9,1);t=new Date(y+1,8,30)}
   else return;DR={mode,from:ymd(f),to:ymd(t)}}
-function shift(n){if(DR.mode==='c'){const len=(new Date(DR.to)-new Date(DR.from))/864e5+1,f=new Date(DR.from+'T12:00:00');f.setDate(f.getDate()+n*len);
+function dShift(n){if(DR.mode==='c'){const len=(new Date(DR.to)-new Date(DR.from))/864e5+1,f=new Date(DR.from+'T12:00:00');f.setDate(f.getDate()+n*len);
   const t=new Date(f);t.setDate(f.getDate()+len-1);DR.from=ymd(f);DR.to=ymd(t)}
-  else{const d=new Date(DR.from+'T12:00:00');if(DR.mode==='w')d.setDate(d.getDate()+7*n);else if(DR.mode==='m')d.setMonth(d.getMonth()+n);else d.setFullYear(d.getFullYear()+n);setRange(DR.mode,ymd(d))}loadDash()}
-function rangeLabel(){const f=new Date(DR.from+'T12:00:00');if(DR.mode==='m')return 'เดือน'+TM[f.getMonth()].replace('.','')+' '+(f.getFullYear()+543);
-  if(DR.mode==='y')return 'ปีงบประมาณ '+(f.getFullYear()+544);return th(DR.from)+' – '+th(DR.to)}
-async function loadDash(){$('#execStats').classList.add('dbusy');execMsg('กำลังโหลดข้อมูล '+rangeLabel()+' …',1);
+  else{const d=new Date(DR.from+'T12:00:00');if(DR.mode==='w')d.setDate(d.getDate()+7*n);else if(DR.mode==='m')d.setMonth(d.getMonth()+n);else d.setFullYear(d.getFullYear()+n);dSetRange(DR.mode,ymd(d))}loadDash()}
+function rangeLabel(){const f=new Date(DR.from+'T12:00:00');if(DR.mode==='m')return ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'][f.getMonth()]+' '+(f.getFullYear()+543);
+  if(DR.mode==='y')return 'ปีงบประมาณ '+(f.getFullYear()+544);const t=new Date(DR.to+'T12:00:00');
+  return f.getMonth()===t.getMonth()&&f.getFullYear()===t.getFullYear()?f.getDate()+'–'+th(DR.to):th(DR.from)+' – '+th(DR.to)}
+const DKEY='busDash';function dGet(){try{const s=(JSON.parse(localStorage.getItem(DKEY))||{})[DR.from+DR.to];return s&&Date.now()-(s._t||0)<432e5?s:null}catch(e){}}
+function dPut(s){try{const o=JSON.parse(localStorage.getItem(DKEY))||{};s._t=Date.now();o[s.from+s.to]=s;const k=Object.keys(o);while(k.length>6)delete o[k.shift()];localStorage.setItem(DKEY,JSON.stringify(o))}catch(e){}}
+async function loadDash(){const c=dGet();if(c)renderStats(c);else $('#execStats').classList.add('dbusy');
+  execMsg((c?'กำลังอัปเดตข้อมูลล่าสุด ':'กำลังโหลดข้อมูล ')+rangeLabel()+' …',1);
   try{let s;for(let i=0;i<30;i++){s=await gs('api_analytics',EXU,EXP,DR.from,DR.to);if(!s.pending)break;
     execMsg(`กำลังเตรียมข้อมูลครั้งแรก ${s.done}/${s.total} วัน … (ครั้งต่อไปจะเร็ว)`,1)}
-    DS=s;execMsg('');renderStats(DS)}catch(e){execMsg(e.message||'เกิดข้อผิดพลาด')}
+    DS=s;dPut(s);execMsg('');if(DR.from===s.from&&DR.to===s.to)renderStats(DS)}catch(e){execMsg(e.message||'เกิดข้อผิดพลาด')}
   $('#execStats').classList.remove('dbusy')}
 function renderStats(s){DS=s;const k=s.kpi,p=s.prev,days=(new Date(s.to)-new Date(s.from))/864e5+1;
   const card=(lbl,v,pv,unit,inv)=>`<div class="kc"><span>${lbl}</span><b>${(+v).toLocaleString()}${unit||''}</b>${delta(v,pv,inv)} <small style="color:var(--mut);font-size:11px">ช่วงก่อน ${(+pv).toLocaleString()}${unit||''}</small></div>`;
@@ -985,10 +994,10 @@ function renderStats(s){DS=s;const k=s.kpi,p=s.prev,days=(new Date(s.to)-new Dat
   <div class="dfl"><div class="seg">${[['w','สัปดาห์'],['m','เดือน'],['y','ปีงบฯ'],['c','กำหนดเอง']].map(x=>`<button data-m="${x[0]}" class="${DR.mode===x[0]?'on':''}">${x[1]}</button>`).join('')}</div>
    <button class="nv" id="dPrev" title="ช่วงก่อนหน้า">‹</button><span class="lab">${rangeLabel()}</span><button class="nv" id="dNext" title="ช่วงถัดไป">›</button>
    <span id="dCus" style="display:${DR.mode==='c'?'inline-flex':'none'};gap:4px;align-items:center"><input type="date" id="dF" value="${DR.from}"> – <input type="date" id="dT" value="${DR.to}"><button class="btn" id="dGo" style="padding:6px 12px">ดู</button></span>
-   <span class="sp"></span><button class="btn sec" id="dCsv">⬇️ Excel (CSV)</button><button class="btn sec" id="dPdf">🖨️ พิมพ์ / PDF</button></div>
+   <span class="sp"></span><button class="btn sec ex" id="dCsv" title="ดาวน์โหลด Excel (CSV)">⬇️<span> Excel (CSV)</span></button><button class="btn sec ex" id="dPdf" title="พิมพ์ / บันทึก PDF">🖨️<span> พิมพ์ / PDF</span></button></div>
   <div style="font-size:12.5px;color:var(--mut)">${th(s.from)} – ${th(s.to)} (${days} วัน) · เทียบกับ ${th(s.prevFrom)} – ${th(s.prevTo)}</div>
   <div class="kg">${card('🚐 เที่ยวรถ',k.trips,p.trips)}${card('👥 ผู้โดยสาร (คน)',k.pax,p.pax)}${card('🚗 จำนวนรถที่ใช้ (คัน)',k.vehicles,p.vehicles)}
-   ${card('💸 สัดส่วนรถจ้าง',k.hiredPct,p.hiredPct,'%',1)}${card('❌ ยกเลิก',k.cancelPct,p.cancelPct,'%',1)}${card('📣 ร้องเรียน',k.complaints,p.complaints,'',1)}${card('📱 เปิดแอป',k.opens,p.opens)}
+   ${card('💸 สัดส่วนรถจ้าง',k.hiredPct,p.hiredPct,'%',1)}${card('❌ ยกเลิก',k.cancelPct,p.cancelPct,'%',1)}${card('📣 ร้องเรียน',k.complaints,p.complaints,'',1)}
    <div class="kc"><span>🔝 รถพร้อมกันสูงสุด/วัน</span><b>${s.peakMax} คัน</b><i class="eq">เฉลี่ย ${s.peakAvg} คัน/วัน</i></div></div>
   <div class="dg">
    <div class="card wide"><h4>📈 แนวโน้มเที่ยวรถ <small>${days<=45?'รายวัน':days<=200?'รายสัปดาห์':'รายเดือน'}</small></h4>${cols(tk,[['รถคณะฯ','#2563eb',tf],['รถจ้าง','#f59e0b',thd]],kl)}</div>
@@ -1007,15 +1016,15 @@ function renderStats(s){DS=s;const k=s.kpi,p=s.prev,days=(new Date(s.to)-new Dat
    <div class="card"><h4>🔎 คำค้นยอดนิยม <small>ค้น ${s.searches} ครั้ง</small></h4>${bar(s.terms)}</div>
   </div>
   <div style="font-size:12px;color:var(--mut);margin-top:10px">ทะเบียนรถที่พิมพ์ต่างกัน (เช่น 1นข5057 / 1นข-5057) รวมเป็นคันเดียวแล้ว · คำนวณล่าสุด ${esc(s.updated)} น.</div>`;
-  $$('.dfl .seg button').forEach(b=>b.onclick=()=>{const m=b.dataset.m;if(m==='c'){DR.mode='c';renderStats(DS);return}setRange(m);loadDash()});
-  $('#dPrev').onclick=()=>shift(-1);$('#dNext').onclick=()=>shift(1);
+  $$('.dfl .seg button').forEach(b=>b.onclick=()=>{const m=b.dataset.m;if(m==='c'){DR.mode='c';renderStats(DS);return}dSetRange(m);loadDash()});
+  $('#dPrev').onclick=()=>dShift(-1);$('#dNext').onclick=()=>dShift(1);
   $('#dGo').onclick=()=>{const f=$('#dF').value,t=$('#dT').value;if(!f||!t||f>t)return execMsg('เลือกช่วงวันที่ให้ถูกต้อง');DR={mode:'c',from:f,to:t};loadDash()};
   $$('.vt tr.ck').forEach(r=>r.onclick=()=>{VSEL=VSEL===r.dataset.p?'':r.dataset.p;renderStats(DS)});
   $('#dPdf').onclick=()=>window.print();$('#dCsv').onclick=csv;
 }
-function csv(){const s=DS,L=[],q=v=>'"'+String(v).replace(/"/g,'""')+'"',sec=(t,h,rows)=>{L.push('',q(t));L.push(h.map(q).join(','));rows.forEach(r=>L.push(r.map(q).join(',')))};
+function csv(){const s=DS,L=[],q=v=>{v=String(v);if(/^[=+\-@\t\r]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"'},sec=(t,h,rows)=>{L.push('',q(t));L.push(h.map(q).join(','));rows.forEach(r=>L.push(r.map(q).join(',')))};
   L.push(q('RSON-DEPARTURES รายงานผู้บริหาร'),q('ช่วง '+s.from+' ถึง '+s.to));
-  sec('ตัวชี้วัด',['รายการ','ช่วงนี้','ช่วงก่อน'],[['เที่ยวรถ',s.kpi.trips,s.prev.trips],['ผู้โดยสาร',s.kpi.pax,s.prev.pax],['จำนวนรถที่ใช้',s.kpi.vehicles,s.prev.vehicles],['สัดส่วนรถจ้าง %',s.kpi.hiredPct,s.prev.hiredPct],['ยกเลิก %',s.kpi.cancelPct,s.prev.cancelPct],['ร้องเรียน',s.kpi.complaints,s.prev.complaints],['เปิดแอป',s.kpi.opens,s.prev.opens],['รถพร้อมกันสูงสุด/วัน',s.peakMax,''],['รถพร้อมกันเฉลี่ย/วัน',s.peakAvg,'']]);
+  sec('ตัวชี้วัด',['รายการ','ช่วงนี้','ช่วงก่อน'],[['เที่ยวรถ',s.kpi.trips,s.prev.trips],['ผู้โดยสาร',s.kpi.pax,s.prev.pax],['จำนวนรถที่ใช้',s.kpi.vehicles,s.prev.vehicles],['สัดส่วนรถจ้าง %',s.kpi.hiredPct,s.prev.hiredPct],['ยกเลิก %',s.kpi.cancelPct,s.prev.cancelPct],['ร้องเรียน',s.kpi.complaints,s.prev.complaints],['รถพร้อมกันสูงสุด/วัน',s.peakMax,''],['รถพร้อมกันเฉลี่ย/วัน',s.peakAvg,'']]);
   sec('รถแต่ละคัน',['ทะเบียน','ประเภท','เที่ยว','วันที่ใช้','ผู้โดยสาร','ปลายทาง'],s.vehicles.map(v=>[v.plate,v.hired?'รถจ้าง':'รถคณะฯ',v.trips,v.days,v.pax,v.dest.map(d=>d[0]+'('+d[1]+')').join(' ')]));
   [['เส้นทาง',s.routes],['ปลายทาง',s.dest],['ประเภทงาน',s.type],['คนขับ (ขา)',s.drivers],['อาจารย์',s.ins],['ห้องเรียน',s.rooms],['ร้องเรียนตามสถานะ',s.cStatus],['ร้องเรียนตามหมวด',s.cCat],['คำค้น',s.terms]].forEach(x=>sec(x[0],['รายการ','จำนวน'],x[1]));
   sec('รถพร้อมกันต่อวัน',['วันที่','รวม','รถจ้าง'],s.peak);
@@ -1025,12 +1034,12 @@ const execMsg=(t,ok)=>{$('#execMsg').textContent=t;$('#execMsg').style.color=ok?
 $('#execGo').onclick=async()=>{
   const u=$('#execUser').value.trim(),p=$('#execPin').value;if(!u||!p)return execMsg('กรอกชื่อผู้ใช้และรหัสผ่าน');
   $('#execGo').disabled=true;execMsg('กำลังตรวจสอบ…',1);
-  setRange('m');try{const s=await gs('api_login',u,p);EXU=u;EXP=p;$('#execPin').value='';execMsg('');
+  dSetRange('m');try{const s=await gs('api_login',u,p);EXU=u;EXP=p;$('#execPin').value='';execMsg('');
     $('#execLogin').style.display='none';$('#execMe').style.display='flex';$('#execName').textContent='👤 '+s.name;loadDash()}
   catch(e){execMsg(e.message||'เกิดข้อผิดพลาด')}
   $('#execGo').disabled=false;
 };
-$('#execOut').onclick=()=>{EXU='';EXP='';DS=null;$('#execStats').innerHTML='';$('#execMe').style.display='none';$('#cpBox').style.display='none';$('#execLogin').style.display='';execMsg('')};
+$('#execOut').onclick=()=>{EXU='';EXP='';DS=null;try{localStorage.removeItem(DKEY)}catch(e){}$('#execStats').innerHTML='';$('#execMe').style.display='none';$('#cpBox').style.display='none';$('#execLogin').style.display='';execMsg('')};
 $('#cpOpen').onclick=()=>{const b=$('#cpBox');b.style.display=b.style.display==='grid'?'none':'grid'};
 $('#cpGo').onclick=async()=>{
   const o=$('#cpOld').value,n=$('#cpNew').value,n2=$('#cpNew2').value;
