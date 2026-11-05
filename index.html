@@ -390,6 +390,8 @@ body.dark .hm{background:rgba(15,23,42,.75);color:#e5e7eb}
 .hm div{text-align:center;border-radius:3px;padding:4px 0;font-variant-numeric:tabular-nums}.hm .h{color:var(--mut)}
 .tr svg{width:100%;height:auto;display:block}
 .dbusy{opacity:.5;pointer-events:none}
+.dsc{font-size:12.5px;color:var(--mut);margin:-4px 0 8px;line-height:1.5}
+.vtag{display:inline-block;font-size:12px;font-weight:600;color:var(--mut);background:var(--pan2);border:1px solid var(--line);border-radius:6px;padding:1px 6px;margin-left:4px;white-space:nowrap}
 .dg .bar-row{grid-template-columns:minmax(0,1.4fr) 1fr 40px}.dlg{min-width:150px}
 @media(max-width:860px){.dfl{position:static;gap:5px}.dfl .seg button{padding:5px 9px;font-size:13px}.dfl .lab{min-width:0;flex:1;font-size:14px;white-space:nowrap}.dfl .seg{order:-1;width:100%}.dfl .seg button{flex:1}
  .dfl .sp{display:none}.dfl{display:grid;grid-template-columns:38px 1fr 38px 40px 40px;gap:6px}
@@ -648,7 +650,7 @@ function phone(n){if(!n)return null;if(n in _ph)return _ph[n];if(S.drivers[n])re
 /* ================= data ================= */
 S.dc={};
 function fromCache(f,t){const out=[];for(let d=f;d<=t;d=addDays(d,1)){if(!S.dc[d])return null;out.push(...S.dc[d])}return out}
-function saveLocal(){try{localStorage.setItem('busCache',JSON.stringify({today:S.today,dates:S.dates,drivers:Object.values(S.drivers),dc:Object.fromEntries(Object.entries(S.dc).filter(([d])=>d>=addDays(S.today,-1)&&d<=addDays(S.today,2)))}))}catch(e){}}
+function saveLocal(){try{localStorage.setItem('busCache',JSON.stringify({today:S.today,dates:S.dates,drivers:Object.values(S.drivers),vtypes:S.vt||{},dc:Object.fromEntries(Object.entries(S.dc).filter(([d])=>d>=addDays(S.today,-1)&&d<=addDays(S.today,2)))}))}catch(e){}}
 async function loadRange(pre){
   const r=pre||await gs('api_getDays',S.from,S.to);
   r.days.forEach(d=>S.dc[d.date]=d.trips);saveLocal();
@@ -706,7 +708,9 @@ function renderFilters(){
   $('#active').innerHTML=act.join('');
   $$('#active .ac').forEach(c=>c.onclick=()=>{S.F[c.dataset.k].delete(c.dataset.v);render()});
 }
-function plateHtml(p,h){return p?`<span class="plate ${h?'hired':''}">${esc(p)}</span>`:'<span class="m">ยังไม่ระบุรถ</span>'}
+const normP=p=>{p=String(p||'').replace(/\s+/g,'');const m=p.match(/^(\d?[ก-ฮ]{1,3})-?(\d{1,4})$/)||p.match(/^(\d{2})-?(\d{4})$/);return m?m[1]+'-'+m[2]:p};
+const VTI={'รถบัส':'🚌','รถบรรทุก':'🚚','รถตู้':'🚐'},vtag=t=>t?`<span class="vtag">${esc(t)}</span>`:'';
+function plateHtml(p,h){return p?`<span class="plate ${h?'hired':''}">${esc(p)}</span>${vtag((S.vt||{})[normP(p)])}`:'<span class="m">ยังไม่ระบุรถ</span>'}
 function driverHtml(n){if(!n)return '';const p=phone(n);return esc(n)+(p&&p.phone?` <a class="tel" href="tel:${esc(p.phone.split(/[ ,\/]/)[0].replace(/[^0-9+]/g,''))}" title="${esc(p.full)}">📞 ${esc(p.phone)}</a>`:'')}
 function tstatus(t){
   if(t.cancelled)return['ยกเลิก','x'];
@@ -728,7 +732,7 @@ function ico(x,t){
   if(/ชุมชน|บ้าน/.test(x))return'🏘️';
   return'📍';
 }
-const vico=(p,r)=>/บัส/.test(r||'')||/^4\d-/.test(p||'')?'🚌':'🚐';
+const vico=(p,r)=>{const t=(S.vt||{})[normP(p)];return t?(VTI[t]||'🚗'):/บัส/.test(r||'')||/^4\d-/.test(p||'')?'🚌':'🚐'};
 const tkey=t=>t.date+'|'+t.raw;
 function nowHM(){const n=new Date();return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')}
 const mins=x=>x?+x.slice(0,2)*60+ +x.slice(3):0;
@@ -949,14 +953,15 @@ function donut(rows,center){const t=rows.reduce((a,r)=>a+r[1],0);if(!t)return '<
 function cols(keys,series,lbl){ // stacked columns: series=[[name,color,{k:v}]]
   if(!keys.length)return '<div class="empty">ไม่มีข้อมูลในช่วงนี้</div>';
   const W=Math.max(760,keys.length*22),H=170,mx=Math.max(1,...keys.map(k=>series.reduce((a,s)=>a+(s[2][k]||0),0))),bw=(W-30)/keys.length;let g='';
-  keys.forEach((k,i)=>{let y=H-20;series.forEach(s=>{const v=s[2][k]||0,h=v/mx*(H-40);if(v){y-=h;g+=`<rect x="${30+i*bw+bw*.15}" y="${y.toFixed(1)}" width="${(bw*.7).toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${s[1]}"><title>${esc(lbl(k))} ${s[0]}: ${v}</title></rect>`}});
+  keys.forEach((k,i)=>{let y=H-20,tot=0;series.forEach(s=>{tot+=s[2][k]||0;const v=s[2][k]||0,h=v/mx*(H-40);if(v){y-=h;g+=`<rect x="${30+i*bw+bw*.15}" y="${y.toFixed(1)}" width="${(bw*.7).toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${s[1]}"><title>${esc(lbl(k))} ${s[0]}: ${v}</title></rect>`}});
+    if(tot&&keys.length<=40)g+=`<text x="${30+i*bw+bw/2}" y="${(y-3).toFixed(1)}" font-size="10" font-weight="600" text-anchor="middle" fill="var(--time)">${tot}</text>`;
     if(keys.length<=16||i%Math.ceil(keys.length/12)===0)g+=`<text x="${30+i*bw+bw/2}" y="${H-5}" font-size="10" text-anchor="middle" fill="var(--mut)">${esc(lbl(k))}</text>`});
   [0,.5,1].forEach(f=>{const y=H-20-f*(H-40);g+=`<line x1="28" x2="${W}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="24" y="${y+3}" font-size="10" text-anchor="end" fill="var(--mut)">${Math.round(mx*f)}</text>`});
   return `<div class="tr" style="overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" style="min-width:${Math.min(W,560)}px">${g}</svg></div>
   <div class="dlg" style="grid-auto-flow:column;justify-content:start;gap:14px">${series.map(s=>`<div><i style="background:${s[1]}"></i>${s[0]}</div>`).join('')}</div>`}
 const TM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'],WD=['จ','อ','พ','พฤ','ศ','ส','อา'];
 const th=s=>{const d=new Date(s+'T12:00:00');return d.getDate()+' '+TM[d.getMonth()]+' '+String(d.getFullYear()+543).slice(2)};
-const kl=k=>k.length===7?TM[+k.slice(5)-1]+String(+k.slice(0,4)+543).slice(2):(+k.slice(8))+'/'+(+k.slice(5,7));
+const kl=k=>k.length===7?TM[+k.slice(5)-1]+String(+k.slice(0,4)+543).slice(2):(+k.slice(8))+' '+TM[+k.slice(5,7)-1];
 function delta(c,p,inv){if(p==null)return '';if(!p&&!c)return '<i class="eq">– เท่าเดิม</i>';if(!p)return '<i class="up">ใหม่</i>';
   const d=Math.round((c-p)*100/p),good=inv?d<0:d>0;return d===0?'<i class="eq">– เท่าเดิม</i>':`<i class="${good?'up':'dn'}">${d>0?'▲':'▼'} ${Math.abs(d)}%</i>`}
 let DS=null,DR={mode:'m',from:'',to:''},VSEL='';
@@ -984,12 +989,11 @@ function renderStats(s){DS=s;const k=s.kpi,p=s.prev,days=(new Date(s.to)-new Dat
   const card=(lbl,v,pv,unit,inv)=>`<div class="kc"><span>${lbl}</span><b>${(+v).toLocaleString()}${unit||''}</b>${delta(v,pv,inv)} <small style="color:var(--mut);font-size:11px">ช่วงก่อน ${(+pv).toLocaleString()}${unit||''}</small></div>`;
   const tk=[...new Set(Object.keys(s.trend).map(x=>x.split('|')[0]))].sort(),tf={},thd={};Object.entries(s.trend).forEach(([x,v])=>{const[a,b]=x.split('|');(b==='h'?thd:tf)[a]=v});
   const hrs=[];Object.keys(s.heat).forEach(x=>hrs.push(+x.split('|')[1]));const h0=Math.min(6,...hrs),h1=Math.max(18,...hrs),hmx=Math.max(1,...Object.values(s.heat));
-  let hm=`<div class="h"></div>`;for(let h=h0;h<=h1;h++)hm+=`<div class="h">${h}</div>`;
-  WD.forEach((w,i)=>{hm+=`<div class="h">${w}</div>`;for(let h=h0;h<=h1;h++){const v=s.heat[i+'|'+h]||0,a=v/hmx;
-    hm+=`<div title="${w} ${h}:00 น. — ${v} เที่ยว" style="background:rgba(37,99,235,${v?(.12+a*.88).toFixed(2):0});color:${a>.55?'#fff':'var(--mut)'}">${v||''}</div>`}});
+  const hv={};Object.entries(s.heat).forEach(([x,v])=>{const k=x.split('|')[1];hv[k]=(hv[k]||0)+v});const hk=[];for(let x=h0;x<=h1;x++)hk.push(String(x));
+  let hb=0,hbv=0;hk.forEach(x=>{if((hv[x]||0)>hbv){hbv=hv[x];hb=+x}});
   const pkd={},pkh={};s.peak.forEach(x=>{pkd[x[0]]=x[1]-x[2];pkh[x[0]]=x[2]});
-  const vrows=s.vehicles.map(v=>`<tr class="ck" data-p="${esc(v.plate)}"><td>${esc(v.plate)}${v.hired?'<span class="tag">รถจ้าง</span>':''}</td><td class="n">${v.trips}</td><td class="n">${v.days}</td><td class="n">${Math.round(v.days*100/Math.max(1,k.tripDays))}%</td><td>${esc((v.dest[0]||[''])[0])}</td></tr>`+
-    (VSEL===v.plate?`<tr class="sub"><td colspan="5">ปลายทาง: ${v.dest.map(d=>esc(d[0])+' ('+d[1]+')').join(' · ')} · ผู้โดยสาร ${v.pax} คน</td></tr>`:'')).join('');
+  const vrows=s.vehicles.map(v=>`<tr class="ck" data-p="${esc(v.plate)}"><td>${esc(v.plate)}</td><td>${v.hired?`<span class="tag" style="margin:0">${esc(v.vtype||'รถตู้')}จ้าง</span>`:`<span class="vtag" style="margin:0">${esc(v.vtype||'รถ')}คณะ</span>`}</td><td class="n">${v.trips}</td><td class="n">${v.days}</td><td class="n">${Math.round(v.days*100/Math.max(1,k.tripDays))}%</td><td>${esc((v.dest[0]||[''])[0])}</td></tr>`+
+    (VSEL===v.plate?`<tr class="sub"><td colspan="6">ปลายทาง: ${v.dest.map(d=>esc(d[0])+' ('+d[1]+')').join(' · ')} · ผู้โดยสาร ${v.pax} คน</td></tr>`:'')).join('');
   $('#execStats').innerHTML=`
   <div class="dfl"><div class="seg">${[['w','สัปดาห์'],['m','เดือน'],['y','ปีงบฯ'],['c','กำหนดเอง']].map(x=>`<button data-m="${x[0]}" class="${DR.mode===x[0]?'on':''}">${x[1]}</button>`).join('')}</div>
    <button class="nv" id="dPrev" title="ช่วงก่อนหน้า">‹</button><span class="lab">${rangeLabel()}</span><button class="nv" id="dNext" title="ช่วงถัดไป">›</button>
@@ -1000,17 +1004,18 @@ function renderStats(s){DS=s;const k=s.kpi,p=s.prev,days=(new Date(s.to)-new Dat
    ${card('💸 สัดส่วนรถจ้าง',k.hiredPct,p.hiredPct,'%',1)}${card('❌ ยกเลิก',k.cancelPct,p.cancelPct,'%',1)}${card('📣 ร้องเรียน',k.complaints,p.complaints,'',1)}
    <div class="kc"><span>🔝 รถพร้อมกันสูงสุด/วัน</span><b>${s.peakMax} คัน</b><i class="eq">เฉลี่ย ${s.peakAvg} คัน/วัน</i></div></div>
   <div class="dg">
-   <div class="card wide"><h4>📈 แนวโน้มเที่ยวรถ <small>${days<=45?'รายวัน':days<=200?'รายสัปดาห์':'รายเดือน'}</small></h4>${cols(tk,[['รถคณะฯ','#2563eb',tf],['รถจ้าง','#f59e0b',thd]],kl)}</div>
+   <div class="card wide"><h4>📈 แนวโน้มเที่ยวรถ <small>${days<=45?'รายวัน':days<=200?'รายสัปดาห์':'รายเดือน'}</small></h4><div class="dsc">จำนวนเที่ยวรถที่ออกในแต่ละ${days<=45?'วัน':days<=200?'สัปดาห์':'เดือน'} แยกรถคณะฯ (น้ำเงิน) กับรถจ้าง (ส้ม) — ใช้ดูว่าช่วงไหนงานหนัก ควรเตรียมรถ/คนขับเพิ่ม และช่วงไหนต้องจ้างรถมาก ซึ่งเป็นค่าใช้จ่ายของคณะฯ</div>${cols(tk,[['รถคณะฯ','#2563eb',tf],['รถจ้าง','#f59e0b',thd]],kl)}</div>
    <div class="card"><h4>🚐 รถคณะฯ vs รถจ้าง <small>นับเที่ยวไป</small></h4>${donut([['รถคณะฯ',Object.values(tf).reduce((a,b)=>a+b,0)],['รถจ้าง',Object.values(thd).reduce((a,b)=>a+b,0)]],'เที่ยว')}</div>
    <div class="card"><h4>🧭 ประเภทงาน</h4>${donut(s.type,'เที่ยว')}</div>
-   <div class="card wide"><h4>🚗 รถแต่ละคัน <small>แตะแถวเพื่อดูปลายทาง</small></h4><div style="overflow-x:auto"><table class="vt"><thead><tr><th>ทะเบียน</th><th class="n">เที่ยว</th><th class="n">วันที่ใช้</th><th class="n">อัตราใช้</th><th>ปลายทางบ่อยสุด</th></tr></thead><tbody>${vrows||'<tr><td colspan="5" class="empty">ไม่มีข้อมูลในช่วงนี้</td></tr>'}</tbody></table></div></div>
+   ${s.vtype?`<div class="card"><h4>🚌 ประเภทรถ <small>นับเที่ยวไป</small></h4>${donut(s.vtype,'เที่ยว')}</div>`:''}
+   <div class="card wide"><h4>🚗 รถแต่ละคัน <small>แตะแถวเพื่อดูปลายทาง</small></h4><div style="overflow-x:auto"><table class="vt"><thead><tr><th>ทะเบียน</th><th>ประเภท</th><th class="n">เที่ยว</th><th class="n">วันที่ใช้</th><th class="n">อัตราใช้</th><th>ปลายทางบ่อยสุด</th></tr></thead><tbody>${vrows||'<tr><td colspan="6" class="empty">ไม่มีข้อมูลในช่วงนี้</td></tr>'}</tbody></table></div></div>
    <div class="card"><h4>🛣️ เส้นทางยอดนิยม <small>ต้นทาง → ปลายทาง</small></h4>${bar(s.routes)}</div>
    <div class="card"><h4>📍 ปลายทางบ่อยสุด</h4>${bar(s.dest,0,'linear-gradient(90deg,#8b5cf6,#ec4899)')}</div>
-   <div class="card wide"><h4>🔝 จำนวนรถที่ใช้พร้อมกันต่อวัน <small>สูงสุด ${s.peakMax} · เฉลี่ย ${s.peakAvg} คัน</small></h4>${cols(s.peak.map(x=>x[0]),[['รถคณะฯ','#2563eb',pkd],['รถจ้าง','#f59e0b',pkh]],x=>(+x.slice(8))+'/'+(+x.slice(5,7)))}</div>
-   <div class="card wide"><h4>🔥 ช่วงเวลาออกรถ <small>วัน × ชั่วโมง (เวลาไป)</small></h4><div class="hm" style="--hc:${h1-h0+1}">${hm}</div></div>
+   <div class="card wide"><h4>🔝 จำนวนรถที่ใช้พร้อมกันต่อวัน <small>สูงสุด ${s.peakMax} · เฉลี่ย ${s.peakAvg} คัน</small></h4><div class="dsc">จำนวนรถที่ออกปฏิบัติงานในเวลาเดียวกันมากที่สุดของแต่ละวัน (ตัวเลขบนแท่ง = รวมทั้งหมด) แยกรถคณะฯ (น้ำเงิน) กับรถจ้าง (ส้ม) — ถ้าส่วนสีส้มสูงบ่อย แปลว่ารถคณะฯ ไม่พอในช่วงที่งานชนกัน</div>${cols(s.peak.map(x=>x[0]),[['รถคณะฯ','#2563eb',pkd],['รถจ้าง','#f59e0b',pkh]],x=>WD[(new Date(x+'T12:00:00').getDay()+6)%7]+' '+(+x.slice(8))+' '+TM[+x.slice(5,7)-1])}</div>
+   <div class="card wide"><h4>🕒 ช่วงเวลาออกรถ <small>${hb?'ออกมากสุด '+String(hb).padStart(2,'0')+':00–'+String(hb).padStart(2,'0')+':59 น. = '+hbv+' เที่ยว':''}</small></h4><div class="dsc">จำนวนเที่ยวรถที่ออก (เวลาไป) ในแต่ละชั่วโมง รวมทุกวันในช่วงที่เลือก — ใช้ดูว่าควรมีรถและคนขับพร้อมช่วงไหนมากที่สุด</div>${cols(hk,[['เที่ยวรถ','#2563eb',hv]],x=>String(x).padStart(2,'0')+' น.')}</div>
    <div class="card"><h4>🧑‍✈️ ภาระงานคนขับ <small>จำนวนขา</small></h4>${bar(s.drivers,0,'linear-gradient(90deg,#06b6d4,#2563eb)')}</div>
    <div class="card"><h4>👩‍🏫 อาจารย์ที่ใช้บริการบ่อย</h4>${bar(s.ins)}</div>
-   <div class="card"><h4>🏫 ห้องเรียน (R.xxx) ที่ใช้บ่อย</h4>${bar(s.rooms)}</div>
+   <div class="card"><h4>🏫 วิชาเรียน (R.xxx) ที่ใช้บ่อย</h4>${bar(s.rooms)}</div>
    <div class="card"><h4>📣 ร้องเรียนตามสถานะ</h4>${donut(s.cStatus.filter(x=>x[1]),'เรื่อง')}</div>
    <div class="card"><h4>📣 ร้องเรียนตามหมวด</h4>${bar(s.cCat,0,'linear-gradient(90deg,#ef4444,#f59e0b)')}</div>
    <div class="card"><h4>🔎 คำค้นยอดนิยม <small>ค้น ${s.searches} ครั้ง</small></h4>${bar(s.terms)}</div>
@@ -1025,8 +1030,8 @@ function renderStats(s){DS=s;const k=s.kpi,p=s.prev,days=(new Date(s.to)-new Dat
 function csv(){const s=DS,L=[],q=v=>{v=String(v);if(/^[=+\-@\t\r]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"'},sec=(t,h,rows)=>{L.push('',q(t));L.push(h.map(q).join(','));rows.forEach(r=>L.push(r.map(q).join(',')))};
   L.push(q('RSON-DEPARTURES รายงานผู้บริหาร'),q('ช่วง '+s.from+' ถึง '+s.to));
   sec('ตัวชี้วัด',['รายการ','ช่วงนี้','ช่วงก่อน'],[['เที่ยวรถ',s.kpi.trips,s.prev.trips],['ผู้โดยสาร',s.kpi.pax,s.prev.pax],['จำนวนรถที่ใช้',s.kpi.vehicles,s.prev.vehicles],['สัดส่วนรถจ้าง %',s.kpi.hiredPct,s.prev.hiredPct],['ยกเลิก %',s.kpi.cancelPct,s.prev.cancelPct],['ร้องเรียน',s.kpi.complaints,s.prev.complaints],['รถพร้อมกันสูงสุด/วัน',s.peakMax,''],['รถพร้อมกันเฉลี่ย/วัน',s.peakAvg,'']]);
-  sec('รถแต่ละคัน',['ทะเบียน','ประเภท','เที่ยว','วันที่ใช้','ผู้โดยสาร','ปลายทาง'],s.vehicles.map(v=>[v.plate,v.hired?'รถจ้าง':'รถคณะฯ',v.trips,v.days,v.pax,v.dest.map(d=>d[0]+'('+d[1]+')').join(' ')]));
-  [['เส้นทาง',s.routes],['ปลายทาง',s.dest],['ประเภทงาน',s.type],['คนขับ (ขา)',s.drivers],['อาจารย์',s.ins],['ห้องเรียน',s.rooms],['ร้องเรียนตามสถานะ',s.cStatus],['ร้องเรียนตามหมวด',s.cCat],['คำค้น',s.terms]].forEach(x=>sec(x[0],['รายการ','จำนวน'],x[1]));
+  sec('รถแต่ละคัน',['ทะเบียน','ประเภทรถ','รถคณะฯ/รถจ้าง','เที่ยว','วันที่ใช้','ผู้โดยสาร','ปลายทาง'],s.vehicles.map(v=>[v.plate,(v.vtype||(v.hired?'รถตู้':'รถ'))+(v.hired?'จ้าง':'คณะ'),v.hired?'รถจ้าง':'รถคณะฯ',v.trips,v.days,v.pax,v.dest.map(d=>d[0]+'('+d[1]+')').join(' ')]));
+  [['เส้นทาง',s.routes],['ปลายทาง',s.dest],['ประเภทงาน',s.type],['คนขับ (ขา)',s.drivers],['อาจารย์',s.ins],['วิชาเรียน (R.xxx)',s.rooms],['ร้องเรียนตามสถานะ',s.cStatus],['ร้องเรียนตามหมวด',s.cCat],['คำค้น',s.terms]].forEach(x=>sec(x[0],['รายการ','จำนวน'],x[1]));
   sec('รถพร้อมกันต่อวัน',['วันที่','รวม','รถจ้าง'],s.peak);
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+L.join('\r\n')],{type:'text/csv;charset=utf-8'}));a.download='rson-report_'+s.from+'_'+s.to+'.csv';a.click()}
 let EXU='',EXP='';
@@ -1058,7 +1063,7 @@ setInterval(()=>{const n=new Date();$('#clock').firstChild.nodeValue=nowHM();
  $('#clockD').textContent='น.';
  const m=n.getMinutes()+'';if(m!==lastMin){lastMin=m;if(S.trips.length&&S.view==='cards')renderList()}},1000);
 /* ================= boot ================= */
-function applyInit(m){S.today=m.today;S.dates=m.dates||[];(m.drivers||[]).forEach(d=>S.drivers[d.first]=d);}
+function applyInit(m){S.today=m.today;S.dates=m.dates||[];if(m.vtypes)S.vt=m.vtypes;(m.drivers||[]).forEach(d=>S.drivers[d.first]=d);}
 (async function(){
   setHH();S.from=S.today;S.to=S.today;$('#cDate').value=S.today;
   try{const c=JSON.parse(localStorage.getItem('busCache')||'null');
