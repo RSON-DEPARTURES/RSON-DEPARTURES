@@ -464,7 +464,7 @@ main{padding-bottom:110px}
 .hrw{background:rgba(255,255,255,.93);border-radius:12px;padding:8px 10px;color:#0f172a;cursor:pointer;border-left:4px solid #3b82f6}
 .hrw.back{border-left-color:#f97316}
 body.dark .hrw{background:rgba(15,23,42,.78);color:#e5e7eb}
-.hrw1{display:flex;align-items:center;gap:6px}
+.hrw1{display:flex;align-items:center;gap:6px}.horg{font-weight:500;color:var(--mut)}.harw{color:var(--mut);font-weight:400}
 .hrw1 .kt{padding:1px 6px;font-size:13px}
 .hdst{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:15px}
 .harr{flex:none;font-size:12.5px;font-weight:600;color:#13238f;background:#e8eeff;border-radius:99px;padding:2px 9px;white-space:nowrap}
@@ -782,7 +782,7 @@ function heroRow(g){
   const rooms=[...new Set(g.items.flatMap(x=>x.rooms))].join(', ');
   const rem=[...new Set(g.items.map(x=>x.cancelled?'':(/^\d+$/.test(x.remark)?'หมายเหตุ '+x.remark:x.remark)).concat(g.items.map(x=>x.note)).filter(Boolean))];
   return `<div class="hrw ${g.k} ${open?'open':''}" data-key="${esc(key)}" onclick="toggleHero(this)">
-    <div class="hrw1"><span class="kt ${g.k}">${KT[g.k][0]}</span>${l.p?`<span class="hp">${vico(l.p,t.remark)} ${esc(l.p)}</span>`:'<span class="hp wait">รอจัดรถ</span>'}<b class="hdst">${ico(l.d,t)} ${esc(l.d)}</b><span class="harr"><i>ดูเพิ่ม ▾</i><u>ซ่อน ▴</u></span></div>
+    <div class="hrw1"><span class="kt ${g.k}">${KT[g.k][0]}</span>${l.p?`<span class="hp">${vico(l.p,t.remark)} ${esc(l.p)}</span>`:'<span class="hp wait">รอจัดรถ</span>'}<b class="hdst"><span class="horg">${esc(l.o)}</span> <span class="harw">→</span> ${ico(l.d,t)} ${esc(l.d)}</b><span class="harr"><i>ดูเพิ่ม ▾</i><u>ซ่อน ▴</u></span></div>
     <div class="hrw2">${who}</div>
     <div class="hdet">
       <div>${ico(l.o)} ${esc(l.o)} <b>➜</b> ${ico(l.d,t)} ${esc(l.d)}</div>
