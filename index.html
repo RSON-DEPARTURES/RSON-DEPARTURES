@@ -704,8 +704,9 @@ function renderStrip(){
   let h='';for(let i=-14;i<=14;i++){const d=addDays(S.today,i),dt=new Date(d+'T00:00:00'),has=S.dates.includes(d),on=S.from===d&&S.to===d;
    h+=`<button class="dc ${on?'on':''} ${i===0?'td':''} ${has?'':'na'}" data-d="${d}"><small>${i===0?'วันนี้':i===1?'พรุ่งนี้':dt.toLocaleDateString('th-TH',{weekday:'short'})}</small><b>${dt.getDate()}</b><small>${dt.toLocaleDateString('th-TH',{month:'short'})}</small></button>`}
   const el=$('#strip');el.innerHTML=h;$$('#strip .dc').forEach(b=>b.onclick=()=>{S.saved=null;setRange(b.dataset.d,b.dataset.d)});
-  const on=el.querySelector('.on')||el.querySelector('.td');if(on)el.scrollLeft=on.offsetLeft-el.clientWidth/2+on.clientWidth/2;
+  centerStrip();
 }
+function centerStrip(){const el=$('#strip'),on=el.querySelector('.on')||el.querySelector('.td');if(!on)return;const go=()=>{el.scrollLeft+=on.getBoundingClientRect().left-el.getBoundingClientRect().left-el.clientWidth/2+on.clientWidth/2};go();requestAnimationFrame(go)}
 function renderQuick(){renderStrip();
   const Q=[['เมื่อวาน',-1,-1],['วันนี้',0,0],['พรุ่งนี้',1,1,'hot'],['3 วัน',0,2],['7 วัน',0,6],['30 วัน',0,29],['ย้อนหลัง 7 วัน',-7,0]];
   $('#quick').innerHTML=Q.map(q=>{const f=addDays(S.today,q[1]),t=addDays(S.today,q[2]);return `<button class="chip ${q[3]||''} ${S.from===f&&S.to===t?'on':''}" data-f="${f}" data-t="${t}">${q[0]}</button>`}).join('');
@@ -907,7 +908,7 @@ $('#fTog').onclick=()=>{$('#fgrid').classList.toggle('open');$('#fTog').classLis
 $('#clear').onclick=()=>{S.F={};S.q='';$('#q').value='';render()};
 $('#vCards').onclick=()=>{S.view='cards';$('#vCards').classList.add('on');$('#vTable').classList.remove('on');renderList()};
 $('#vTable').onclick=()=>{S.view='table';$('#vTable').classList.add('on');$('#vCards').classList.remove('on');renderList()};
-$$('nav button').forEach(b=>b.onclick=()=>{$$('nav button').forEach(x=>x.classList.toggle('on',x===b));['trips','veh','cmp','ctc'].forEach(t=>$('#tab-'+t).style.display=t===b.dataset.tab?'':'none');if(b.dataset.tab==='veh'||b.dataset.tab==='trips'){const s=$('#tab-'+b.dataset.tab);s.insertBefore($('#dayCard'),s.firstElementChild)}scrollTo(0,0)});
+$$('nav button').forEach(b=>b.onclick=()=>{$$('nav button').forEach(x=>x.classList.toggle('on',x===b));['trips','veh','cmp','ctc'].forEach(t=>$('#tab-'+t).style.display=t===b.dataset.tab?'':'none');if(b.dataset.tab==='veh'||b.dataset.tab==='trips'){const s=$('#tab-'+b.dataset.tab);s.insertBefore($('#dayCard'),s.firstElementChild);centerStrip()}scrollTo(0,0)});
 function goTab(t){$(`nav button[data-tab=${t}]`).click()}
 
 /* ================= complaints ================= */
