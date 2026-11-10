@@ -483,6 +483,15 @@ body.dark .hrw2{color:#cbd5e1}
 .hc,.hlist,.hrw,.hero,.hcs{min-width:0}
 @media(max-width:560px){.hrw1{flex-wrap:wrap}.hdst{flex:1 1 100%;order:3;white-space:normal;font-size:15.5px}.harr{margin-left:auto}}
 .hrw1{min-width:0}.hrw2{overflow-wrap:anywhere}
+.hero,body.dark .hero{background:#1e3a8a;box-shadow:0 6px 16px rgba(30,58,138,.2)}
+.hrw{background:#fff;color:#0f172a;border-left-width:4px}body.dark .hrw{background:#111827;color:#e5e7eb}
+.hrw1{flex-wrap:wrap}.hvl{font-size:12.5px;font-weight:600;color:#475569}body.dark .hvl{color:#94a3b8}
+.hrt{font-size:15.5px;margin-top:4px;line-height:1.45}.hrt .horg{color:#64748b;font-weight:400}.hrt b{font-weight:700}body.dark .hrt .horg{color:#94a3b8}
+.hdet .hk2{display:inline-block;min-width:56px;color:#64748b;font-size:13px}body.dark .hdet .hk2{color:#94a3b8}
+.hdet .kt{font-size:12px;padding:1px 7px}
+.tg.go,.tg.back{background:var(--bg)}.tg.go b,.tg.go span{color:#1d4ed8}.tg.back b,.tg.back span{color:#c2410c}
+body.dark .tg.go b,body.dark .tg.go span{color:#93c5fd}body.dark .tg.back b,body.dark .tg.back span{color:#fdba74}
+.kt.go,body.dark .kt.go{background:#1d4ed8;color:#fff}.kt.back,body.dark .kt.back{background:#ea580c;color:#fff}
 </style>
 </head>
 <body>
@@ -690,9 +699,9 @@ function sorted(a){const f=SK[S.sort.k]||SK.date;return [...a].sort((x,y)=>{cons
 /* ================= render ================= */
 function render(){renderQuick();renderFilters();renderList();renderVeh();fillTripSelect()}
 function renderStrip(){
-  let h='';for(let i=-14;i<=14;i++){const d=addDays(S.today,i),dt=new Date(d+'T00:00:00'),has=S.dates.includes(d),on=S.from===d&&S.to===d&&!S.q;
+  let h='';for(let i=-14;i<=14;i++){const d=addDays(S.today,i),dt=new Date(d+'T00:00:00'),has=S.dates.includes(d),on=S.from===d&&S.to===d;
    h+=`<button class="dc ${on?'on':''} ${i===0?'td':''} ${has?'':'na'}" data-d="${d}"><small>${i===0?'วันนี้':i===1?'พรุ่งนี้':dt.toLocaleDateString('th-TH',{weekday:'short'})}</small><b>${dt.getDate()}</b><small>${dt.toLocaleDateString('th-TH',{month:'short'})}</small></button>`}
-  const el=$('#strip');el.innerHTML=h;$$('#strip .dc').forEach(b=>b.onclick=()=>{if(S.q)clearSearch();S.saved=null;setRange(b.dataset.d,b.dataset.d)});
+  const el=$('#strip');el.innerHTML=h;$$('#strip .dc').forEach(b=>b.onclick=()=>{S.saved=null;setRange(b.dataset.d,b.dataset.d)});
   const on=el.querySelector('.on')||el.querySelector('.td');if(on)el.scrollLeft=on.offsetLeft-el.clientWidth/2+on.clientWidth/2;
 }
 function renderQuick(){renderStrip();
@@ -737,7 +746,7 @@ const tkey=t=>t.date+'|'+t.raw;
 function nowHM(){const n=new Date();return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')}
 const mins=x=>x?+x.slice(0,2)*60+ +x.slice(3):0;
 function dur(m){m=Math.max(0,m);const h=Math.floor(m/60),r=m%60;return (h?h+' ชม. ':'')+(r||!h?r+' นาที':'')}
-function telBtn(n){if(!n)return'';const p=phone(n);return p&&p.phone?`<a class="call" href="tel:${esc(p.phone.split(/[ ,\/]/)[0].replace(/[^0-9+]/g,''))}" onclick="event.stopPropagation()">📞 ${esc(p.phone)}</a>`:''}
+function telBtn(n){if(!n)return'';const p=phone(n);return p&&p.phone?`<a class="call" href="tel:${esc(p.phone.split(/[ ,\/]/)[0].replace(/[^0-9+]/g,''))}" onclick="event.stopPropagation()">☎ ${esc(p.phone)}</a>`:''}
 let SEEN={};try{SEEN=JSON.parse(localStorage.getItem('busSeen')||'{}')}catch(e){}
 S.star={};
 function starOn(t){
@@ -772,23 +781,26 @@ function kstatus(e){const t=e.t;if(t.cancelled)return['ยกเลิก','x'];
   if(t.date>d)return['ตามกำหนด','s'];if(t.date<d)return['ผ่านไปแล้ว','d'];const n=nowHM();if(e.k==='back'&&t.go&&n>=t.go&&n<e.tm)return['รอกลับ','w'];return e.tm&&n<e.tm?['ยังไม่ถึงเวลา'+w,'w']:['ถึงเวลา'+w+'แล้ว','d']}
 function mergeEv(arr){const out=[],idx={};arr.forEach(e=>{const l=leg(e.t,e.k),key=l.p&&!e.t.cancelled?[e.k,e.tm,l.p,l.d].join('|'):null;
   if(key&&idx[key]!=null){const g=out[idx[key]];g.items.push(e.t);g.students+=e.t.students}else{if(key)idx[key]=out.length;out.push({...e,items:[e.t],students:e.t.students})}});return out}
-const KT={go:['🚀','ออก','ขาไป'],back:['🔙','กลับ','ขากลับ']};
-function plateBig(l,t){return l.p?`<span class="bigp ${l.h?'hired':''}">${vico(l.p,t.remark)} ${esc(l.p)}</span><span class="fl">${l.h?'รถจ้าง':'รถคณะฯ'}</span>`:t.cancelled?'<span class="bigp none">— ไม่มีรถ —</span>':'<span class="bigp wait">รอจัดรถ</span>'}
+const KT={go:['→','ไป','ขาไป'],back:['←','กลับ','ขากลับ']};
+const vlab=(p,hd)=>{const t=(S.vt||{})[normP(p)];return (t||(hd?'รถตู้':'รถ'))+(hd?'จ้าง':'คณะ')};
+function plateBig(l,t){return l.p?`<span class="bigp ${l.h?'hired':''}">${esc(l.p)}</span><span class="fl">${vlab(l.p,l.h)}</span>`:t.cancelled?'<span class="bigp none">— ไม่มีรถ —</span>':'<span class="bigp wait">รอจัดรถ</span>'}
 S.heroOpen=S.heroOpen||new Set();
 function heroKey(g){const l=leg(g.t,g.k);return [g.tm,g.k,l.p||'-',l.d].join('|')}
 function heroRow(g){
-  const t=g.t,l=leg(t,g.k),key=heroKey(g),open=S.heroOpen.has(key);
-  const who=g.items.map(x=>'👩‍🏫 อ.'+esc(x.instructor||'-')+(x.students?' '+x.students+' คน':'')).join(' · ');
+  const t=g.t,l=leg(t,g.k),key=heroKey(g),open=S.heroOpen.has(key),ok=g.k==='go'?'back':'go';
+  const who=g.items.map(x=>'อ.'+esc(x.instructor||'-')+(x.students?' · '+x.students+' คน':'')).join(' / ');
   const rooms=[...new Set(g.items.flatMap(x=>x.rooms))].join(', ');
   const rem=[...new Set(g.items.map(x=>x.cancelled?'':(/^\d+$/.test(x.remark)?'หมายเหตุ '+x.remark:x.remark)).concat(g.items.map(x=>x.note)).filter(Boolean))];
+  const other=g.k==='go'?(oneWay(t)?'':t.back):t.go;
   return `<div class="hrw ${g.k} ${open?'open':''}" data-key="${esc(key)}" onclick="toggleHero(this)">
-    <div class="hrw1"><span class="kt ${g.k}">${KT[g.k][0]}</span>${l.p?`<span class="hp">${vico(l.p,t.remark)} ${esc(l.p)}</span>`:'<span class="hp wait">รอจัดรถ</span>'}<b class="hdst"><span class="horg">${esc(l.o)}</span> <span class="harw">→</span> ${ico(l.d,t)} ${esc(l.d)}</b><span class="harr"><i>ดูเพิ่ม ▾</i><u>ซ่อน ▴</u></span></div>
+    <div class="hrw1"><span class="kt ${g.k}">${KT[g.k][0]} ${KT[g.k][1]}</span>${l.p?`<span class="hp">${esc(l.p)}</span><span class="hvl">${vlab(l.p,l.h)}</span>`:'<span class="hp wait">รอจัดรถ</span>'}<span class="harr"><i>ดูเพิ่ม ▾</i><u>ซ่อน ▴</u></span></div>
+    <div class="hrt"><span class="horg">${esc(l.o)}</span> <span class="harw">→</span> <b>${esc(l.d)}</b></div>
     <div class="hrw2">${who}</div>
     <div class="hdet">
-      <div>${ico(l.o)} ${esc(l.o)} <b>➜</b> ${ico(l.d,t)} ${esc(l.d)}</div>
-      ${l.dr?`<div>👨‍✈️ ${esc(l.dr)} ${telBtn(l.dr)}</div>`:'<div class="mut">ยังไม่ระบุคนขับ</div>'}
-      <div>${g.k==='go'?'↩️ กลับ '+(t.back||'-')+' น.':'🚀 ออก '+(t.go||'-')+' น.'}${rooms?' · 🎓 '+esc(rooms):''}${t.type?' · '+esc(t.type):''}</div>
-      ${rem.length?`<div>📝 ${rem.map(r=>`<span class="br">${esc(r)}</span>`).join(' ')}</div>`:''}
+      ${l.dr?`<div><span class="hk2">คนขับ</span> ${esc(l.dr)} ${telBtn(l.dr)}</div>`:'<div class="mut">ยังไม่ระบุคนขับ</div>'}
+      ${other?`<div><span class="kt ${ok}">${KT[ok][0]} ${KT[ok][1]}</span> ${esc(other)} น.</div>`:''}
+      ${rooms||t.type?`<div>${rooms?'<span class="hk2">วิชา</span> '+esc(rooms):''}${rooms&&t.type?' · ':''}${t.type?esc(t.type):''}</div>`:''}
+      ${rem.length?`<div>${rem.map(r=>`<span class="br">${esc(r)}</span>`).join(' ')}</div>`:''}
     </div></div>`;
 }
 function toggleHero(el){const k=el.dataset.key,o=el.classList.toggle('open');o?S.heroOpen.add(k):S.heroOpen.delete(k)}
@@ -800,7 +812,7 @@ function renderHero(L){
   if(!ev.length){h.innerHTML=`<div class="hero done"><div class="hk">✅ วันนี้ถึงเวลาออกและกลับครบทุกเที่ยวตามตารางแล้ว</div></div>`;return}
   const times=[...new Set(ev.map(e=>e.tm))].slice(0,3);
   const cols=times.map((tm,i)=>{const grp=mergeEv(ev.filter(e=>e.tm===tm)),nG=grp.filter(g=>g.k==='go').length,nB=grp.length-nG;
-    return `<div class="hc ${i?'later':''}"><div class="hch"><div><b>${tm} น.</b>${isToday?`<span>อีก ${dur(mins(tm)-mins(hm))}</span>`:''}</div><div class="hcn">${nG?`<span class="kt go">🚀 ออก ${nG}</span>`:''}${nB?`<span class="kt back">🔙 กลับ ${nB}</span>`:''}</div></div>
+    return `<div class="hc ${i?'later':''}"><div class="hch"><div><b>${tm} น.</b>${isToday?`<span>อีก ${dur(mins(tm)-mins(hm))}</span>`:''}</div><div class="hcn">${nG?`<span class="kt go">→ ไป ${nG}</span>`:''}${nB?`<span class="kt back">← กลับ ${nB}</span>`:''}</div></div>
       <div class="hlist">${grp.map(heroRow).join('')}</div></div>`}).join('');
   h.innerHTML=`<div class="hero"><div class="hk">${isToday?'⏰ ถัดไป '+times.length+' รอบเวลา':'🗓️ '+esc(thDate(S.from,{weekday:'long',day:'numeric',month:'long'}))+' · '+times.length+' รอบเวลาแรก'}</div><div class="hcs">${cols}</div></div>`;
 }
@@ -808,20 +820,20 @@ function tripCard(g){
   const t=g.t,k=g.k,st=kstatus(g),l=leg(t,k),star=g.items.find(starOn);
   const grp=g.items.map(x=>`${x.instructor?'อ.'+esc(x.instructor):'—'}${x.students?' '+x.students+' คน':''}`);
   const rooms=[...new Set(g.items.flatMap(x=>x.rooms))].join(', ');
-  const rem=[...new Set(g.items.map(x=>x.cancelled?'':(/^\d+$/.test(x.remark)?'หมายเหตุ '+x.remark:x.remark)).concat(g.items.map(x=>x.note)).filter(Boolean))];
+  const rem=[...new Set(g.items.map(x=>x.cancelled?'':x.remark).concat(g.items.map(x=>x.note)).filter(Boolean))];
   const chg=g.items.filter(x=>x.changedAt&&Date.now()-x.changedAt<48*3600e3).map(prevTxt).filter(Boolean);
   const tms=x=>[...new Set(g.items.map(i=>x==='go'?i.go:i.back).filter(Boolean))].sort();
-  const lg=['go','back'].filter(x=>x==='go'||(!t.cancelled&&!oneWay(t))).map(x=>{const q=leg(t,x);return `<div class="lg ${x} ${x===k?'cur':''}"><span class="kt ${x}">${KT[x][0]} ${KT[x][2]}</span><b class="lt">${tms(x).length>1?tms(x).join(' / '):(q.tm||'-')}</b><span class="lr">${esc(q.o)} ➜ ${esc(q.d)}</span><span class="lv">${q.p?plateHtml(q.p,q.h):'<span class="mut">รอจัดรถ</span>'} ${q.dr?esc(q.dr)+' '+telBtn(q.dr):''}${x==='back'&&q.same&&q.p?' <em>(คันเดิม)</em>':''}</span></div>`}).join('');
+  const lg=['go','back'].filter(x=>x==='go'||(!t.cancelled&&!oneWay(t))).map(x=>{const q=leg(t,x);return `<div class="lg ${x} ${x===k?'cur':''}"><span class="kt ${x}">${KT[x][0]} ${KT[x][2]}</span><b class="lt">${tms(x).length>1?tms(x).join(' / '):(q.tm||'-')}</b><span class="lv">${x==='back'&&q.same&&q.p?'<em>รถคันเดิม คนขับเดิม</em>':`${x===k?'':(q.p?plateHtml(q.p,q.h):'<span class="mut">รอจัดรถ</span>')} ${q.dr?'คนขับ '+esc(q.dr)+' '+telBtn(q.dr):''}`}</span></div>`}).join('');
   return `<div class="cd ${k} st-${st[1]} ${star?'chg':''}">
    <div class="ch"><span class="kt ${k} big">${KT[k][0]} ${st[0]==='รอกลับ'?'รอกลับ':KT[k][1]} ${g.tm} น.</span>${star?'<i class="star" title="มีการเปลี่ยนแปลง">★</i>':''}<span class="pill ${st[1]}">${st[0]}</span></div>
    <div class="ch">${plateBig(l,t)}</div>
-   <div class="rtc"><span class="o">${ico(l.o)} ${esc(l.o)}</span><span class="ar">➜</span><span class="d">${ico(l.d,t)} ${esc(l.d)}</span></div>
+   <div class="rtc"><span class="o">${esc(l.o)}</span><span class="ar">→</span><span class="d">${esc(l.d)}</span></div>
    ${star&&chg.length?`<div class="cg">★ ${esc(chg.join(' · '))}</div>`:''}
    <div class="kv">
      <span class="k">ผู้ขอใช้</span><span class="v"><b>${grp.join(' · ')}</b>${g.items.length>1?` <em>(${g.items.length} กลุ่ม รวม ${g.students} คน)</em>`:''}</span>
-     <span class="k">งาน</span><span class="v">${esc(t.type)}${rooms?' · 🎓 '+esc(rooms):''}</span>
+     <span class="k">งาน</span><span class="v">${esc(t.type)}${rooms?' · วิชา '+esc(rooms):''}</span>
      ${rem.length?`<span class="k">หมายเหตุ</span><span class="v">${rem.map(r=>`<span class="br">${esc(r)}</span>`).join(' ')}</span>`:''}
-     ${chg.length&&!star?`<span class="k">แก้ไข</span><span class="v mut">✏️ ${esc(chg.join(' · '))}</span>`:''}
+     ${chg.length&&!star?`<span class="k">แก้ไข</span><span class="v mut">${esc(chg.join(' · '))}</span>`:''}
    </div>
    <div class="lgs">${lg}</div>
    <button class="link" onclick="complain('${t.id}')">📣 ร้องเรียนเที่ยวนี้</button>
@@ -829,11 +841,11 @@ function tripCard(g){
 }
 function slots(ev){const slot={};ev.forEach(e=>{const key=e.tm+'|'+(e.k==='go'?0:1);(slot[key]=slot[key]||[]).push(e)});
   return Object.keys(slot).sort().map(key=>{const [tm,kk]=key.split('|'),k=kk==='0'?'go':'back',g=mergeEv(slot[key]);
-    return `<div class="tg ${k}"><b>${KT[k][0]} ${tm} น.</b><span>${k==='go'?'ออก':'กลับ'}พร้อมกัน ${g.filter(x=>!x.t.cancelled).length} คัน</span></div><div class="cgrid">`+g.map(tripCard).join('')+'</div>'}).join('')}
+    return `<div class="tg ${k}"><b>${KT[k][0]} ${tm} น.</b><span>${k==='go'?'ไป':'กลับ'}พร้อมกัน ${g.filter(x=>!x.t.cancelled).length} คัน</span></div><div class="cgrid">`+g.map(tripCard).join('')+'</div>'}).join('')}
 function renderList(){
   const L=filtered();renderHero(L);
   const act=L.filter(t=>!t.cancelled),nG=act.length,nB=act.filter(t=>!oneWay(t)).length;
-  $('#count').innerHTML=S.q?`พบ <b>${L.length}</b> รายการ “${esc(S.q)}” · ย้อนหลัง 7 วัน ถึงล่วงหน้า 14 วัน`:`${esc(thDate(S.from,{weekday:'long',day:'numeric',month:'short',year:'2-digit'}))} · 🚀 ออก <b>${nG}</b> · 🔙 กลับ <b>${nB}</b> เที่ยว`;
+  $('#count').innerHTML=S.q?`พบ <b>${L.length}</b> รายการ “${esc(S.q)}” · ${esc(thDate(S.from,{weekday:'long',day:'numeric',month:'short',year:'2-digit'}))}${S.to!==S.from?' – '+esc(thDate(S.to,{day:'numeric',month:'short',year:'2-digit'})):''}`:`${esc(thDate(S.from,{weekday:'long',day:'numeric',month:'short',year:'2-digit'}))} · → ไป <b>${nG}</b> · ← กลับ <b>${nB}</b> เที่ยว`;
   if(!L.length){$('#list').innerHTML=`<div class="empty">${S.q?'ไม่พบ “'+esc(S.q)+'”':'ไม่มีรายการเดินรถในวันนี้ (หรือชีตของวันนี้ยังไม่ถูกสร้าง)'}</div>`;return}
   const by={};L.forEach(t=>(by[t.date]=by[t.date]||[]).push(t));
   const today=iso(new Date()),hm=nowHM();
@@ -884,9 +896,9 @@ $('#qClr').onclick=()=>{$('#q').value='';doSearch('')};
 function clearSearch(){S.q='';S.saved=null;$('#q').value='';$('#qClr').style.display='none';$('#sbox').style.display='none'}
 async function doSearch(v){
   S.q=v.trim();$('#qClr').style.display=S.q?'':'none';
-  if(S.q&&!S.saved){S.saved=[S.from,S.to];await setRange(addDays(S.today,-7),addDays(S.today,14))}
-  else if(!S.q&&S.saved){const p=S.saved;S.saved=null;await setRange(p[0],p[1])}
-  else{renderList();renderVeh()}
+  // ค้นเฉพาะวันที่เลือกอยู่ ไม่เปลี่ยนวัน
+  if(S.saved){const p=S.saved;S.saved=null;if(p[0]!==S.from||p[1]!==S.to){await setRange(p[0],p[1]);return}}
+  renderList();renderVeh();renderQuick()
 }
 $('#fTog').onclick=()=>{$('#fgrid').classList.toggle('open');$('#fTog').classList.toggle('on')};
 $('#clear').onclick=()=>{S.F={};S.q='';$('#q').value='';render()};
