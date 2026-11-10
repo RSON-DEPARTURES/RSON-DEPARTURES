@@ -492,6 +492,8 @@ body.dark .hrw2{color:#cbd5e1}
 .tg.go,.tg.back{background:var(--bg)}.tg.go b,.tg.go span{color:#1d4ed8}.tg.back b,.tg.back span{color:#c2410c}
 body.dark .tg.go b,body.dark .tg.go span{color:#93c5fd}body.dark .tg.back b,body.dark .tg.back span{color:#fdba74}
 .kt.go,body.dark .kt.go{background:#1d4ed8;color:#fff}.kt.back,body.dark .kt.back{background:#ea580c;color:#fff}
+
+.hero .hk{color:#fff}.hcs{align-items:start}.hmore{border:0;border-radius:10px;padding:8px;font:inherit;font-size:14px;font-weight:600;background:rgba(255,255,255,.9);color:#1e3a8a;cursor:pointer}body.dark .hmore{background:#1e293b;color:#a5b4fc}
 </style>
 </head>
 <body>
@@ -517,7 +519,7 @@ body.dark .tg.go b,body.dark .tg.go span{color:#93c5fd}body.dark .tg.back b,body
 <main>
 <!-- ============ TRIPS ============ -->
 <section id="tab-trips">
-  <div class="card">
+  <div class="card" id="dayCard">
     <div class="sbox" id="sbox" style="display:none"><span>🔍</span><input type="text" inputmode="search" id="q" placeholder="พิมพ์ค้นหา: ชื่ออาจารย์ ทะเบียนรถ คนขับ สถานที่" autocomplete="off"><button id="qClr" class="qx" style="display:none" aria-label="ล้างคำค้น">✕</button></div>
     <div class="wk" id="strip"></div>
     <div class="cnt"><span id="count"></span><span id="liveTxt"></span></div>
@@ -532,7 +534,7 @@ body.dark .tg.go b,body.dark .tg.go span{color:#93c5fd}body.dark .tg.back b,body
 
 <!-- ============ BY VEHICLE ============ -->
 <section id="tab-veh" style="display:none">
-  <div class="card" style="color:var(--mut);font-size:13px"><b style="color:var(--txt)">🚐 ดูรถรายคัน</b> — รถแต่ละคันวันนี้ต้องวิ่งงานไหนบ้าง เรียงตามเวลา (ใช้วันที่เดียวกับหน้าตารางรถ)</div>
+  <div class="card vintro" style="color:var(--mut);font-size:13px"><b style="color:var(--txt)">🚐 ดูรถรายคัน</b> — รถแต่ละคันวันนี้ต้องวิ่งงานไหนบ้าง เรียงตามเวลา (ใช้วันที่เดียวกับหน้าตารางรถ)</div>
   <div id="vlist" class="grid"></div>
 </section>
 
@@ -803,6 +805,7 @@ function heroRow(g){
       ${rem.length?`<div>${rem.map(r=>`<span class="br">${esc(r)}</span>`).join(' ')}</div>`:''}
     </div></div>`;
 }
+const HMAX=4;S.heroMore=S.heroMore||new Set();function heroMore(tm){S.heroMore.has(tm)?S.heroMore.delete(tm):S.heroMore.add(tm);renderHero(filtered())}
 function toggleHero(el){const k=el.dataset.key,o=el.classList.toggle('open');o?S.heroOpen.add(k):S.heroOpen.delete(k)}
 function renderHero(L){
   const h=$('#hero');
@@ -813,7 +816,7 @@ function renderHero(L){
   const times=[...new Set(ev.map(e=>e.tm))].slice(0,3);
   const cols=times.map((tm,i)=>{const grp=mergeEv(ev.filter(e=>e.tm===tm)),nG=grp.filter(g=>g.k==='go').length,nB=grp.length-nG;
     return `<div class="hc ${i?'later':''}"><div class="hch"><div><b>${tm} น.</b>${isToday?`<span>อีก ${dur(mins(tm)-mins(hm))}</span>`:''}</div><div class="hcn">${nG?`<span class="kt go">→ ไป ${nG}</span>`:''}${nB?`<span class="kt back">← กลับ ${nB}</span>`:''}</div></div>
-      <div class="hlist">${grp.map(heroRow).join('')}</div></div>`}).join('');
+      <div class="hlist">${grp.slice(0,HMAX).map(heroRow).join('')}${grp.length>HMAX?(S.heroMore.has(tm)?grp.slice(HMAX).map(heroRow).join('')+`<button class="hmore" onclick="heroMore('${tm}')">ย่อ ▴</button>`:`<button class="hmore" onclick="heroMore('${tm}')">ดูอีก ${grp.length-HMAX} คัน ▾</button>`):''}</div></div>`}).join('');
   h.innerHTML=`<div class="hero"><div class="hk">${isToday?'⏰ ถัดไป '+times.length+' รอบเวลา':'🗓️ '+esc(thDate(S.from,{weekday:'long',day:'numeric',month:'long'}))+' · '+times.length+' รอบเวลาแรก'}</div><div class="hcs">${cols}</div></div>`;
 }
 function tripCard(g){
@@ -904,7 +907,7 @@ $('#fTog').onclick=()=>{$('#fgrid').classList.toggle('open');$('#fTog').classLis
 $('#clear').onclick=()=>{S.F={};S.q='';$('#q').value='';render()};
 $('#vCards').onclick=()=>{S.view='cards';$('#vCards').classList.add('on');$('#vTable').classList.remove('on');renderList()};
 $('#vTable').onclick=()=>{S.view='table';$('#vTable').classList.add('on');$('#vCards').classList.remove('on');renderList()};
-$$('nav button').forEach(b=>b.onclick=()=>{$$('nav button').forEach(x=>x.classList.toggle('on',x===b));['trips','veh','cmp','ctc'].forEach(t=>$('#tab-'+t).style.display=t===b.dataset.tab?'':'none');scrollTo(0,0)});
+$$('nav button').forEach(b=>b.onclick=()=>{$$('nav button').forEach(x=>x.classList.toggle('on',x===b));['trips','veh','cmp','ctc'].forEach(t=>$('#tab-'+t).style.display=t===b.dataset.tab?'':'none');if(b.dataset.tab==='veh'||b.dataset.tab==='trips'){const s=$('#tab-'+b.dataset.tab);s.insertBefore($('#dayCard'),s.firstElementChild)}scrollTo(0,0)});
 function goTab(t){$(`nav button[data-tab=${t}]`).click()}
 
 /* ================= complaints ================= */
